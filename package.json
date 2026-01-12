@@ -1,51 +1,52 @@
 {
-  "name": "server-updator",
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ],
-    "catalog": {
-      "dotenv": "^17.2.2",
-      "zod": "^4.1.13",
-      "typescript": "^5",
-      "@types/bun": "^1.3.4",
-      "@orpc/server": "^1.12.2",
-      "@orpc/openapi": "^1.12.2",
-      "@orpc/zod": "^1.12.2",
-      "better-auth": "^1.4.9",
-      "@libsql/client": "0.15.15",
-      "libsql": "0.5.22",
-      "@orpc/client": "^1.12.2"
-    }
-  },
-  "type": "module",
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "check-types": "turbo check-types",
-    "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F @server-updator/db db:push",
-    "db:studio": "turbo -F @server-updator/db db:studio",
-    "db:generate": "turbo -F @server-updator/db db:generate",
-    "db:migrate": "turbo -F @server-updator/db db:migrate",
-    "db:local": "turbo -F @server-updator/db db:local",
-    "check": "biome check --write ."
-  },
-  "dependencies": {
-    "@server-updator/env": "workspace:*",
-    "dotenv": "catalog:",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.2.0",
-    "@server-updator/config": "workspace:*",
-    "@types/bun": "catalog:",
-    "turbo": "^2.6.3",
-    "typescript": "catalog:"
-  },
-  "packageManager": "bun@1.3.5"
+	"name": "server-updator",
+	"private": true,
+	"workspaces": {
+		"packages": [
+			"apps/*",
+			"packages/*"
+		],
+		"catalog": {
+			"dotenv": "^17.2.2",
+			"zod": "^4.1.13",
+			"typescript": "^5",
+			"@types/bun": "^1.3.4",
+			"@orpc/server": "^1.12.2",
+			"@orpc/openapi": "^1.12.2",
+			"@orpc/zod": "^1.12.2",
+			"better-auth": "^1.4.9",
+			"@libsql/client": "0.15.15",
+			"libsql": "0.5.22",
+			"@orpc/client": "^1.12.2",
+			"elysia": "^1.3.21"
+		}
+	},
+	"type": "module",
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"check-types": "turbo check-types",
+		"dev:native": "turbo -F native dev",
+		"dev:web": "turbo -F web dev",
+		"dev:server": "turbo -F server dev",
+		"db:push": "turbo -F @server-updator/db db:push",
+		"db:studio": "turbo -F @server-updator/db db:studio",
+		"db:generate": "turbo -F @server-updator/db db:generate",
+		"db:migrate": "turbo -F @server-updator/db db:migrate",
+		"db:local": "turbo -F @server-updator/db db:local",
+		"format": "biome check --write ."
+	},
+	"dependencies": {
+		"@server-updator/env": "workspace:*",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.0",
+		"@server-updator/config": "workspace:*",
+		"@types/bun": "catalog:",
+		"turbo": "^2.6.3",
+		"typescript": "catalog:"
+	},
+	"packageManager": "bun@1.3.5"
 }

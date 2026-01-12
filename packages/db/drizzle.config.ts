@@ -2,14 +2,14 @@ import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
 dotenv.config({
-  path: "../../apps/server/.env",
+	path: "../../apps/server/.env",
 });
 
 export default defineConfig({
-  schema: "./src/schema",
-  out: "./src/migrations",
-  dialect: "sqlite",
-  dbCredentials: {
-    url: process.env.DB_FILE_NAME || "",
-  },
+	schema: "./src/schema",
+	out: "./src/migrations",
+	dialect: "sqlite",
+	dbCredentials: {
+		url: process.env.DB_FILE_NAME || "",
+	},
 });
