@@ -20,7 +20,8 @@
 		"@server-updator/env": "workspace:*",
 		"dotenv": "catalog:",
 		"zod": "catalog:",
-		"elysia": "catalog:"
+		"elysia": "catalog:",
+		"drizzle-orm": "catalog:"
 	},
 	"devDependencies": {
 		"@server-updator/config": "workspace:*",

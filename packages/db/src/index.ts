@@ -1,6 +1,7 @@
 import { env } from "@server-updator/env/server";
+import type { Table } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import * as schema from "./schema";
 
 export const db = drizzle({
@@ -9,3 +10,10 @@ export const db = drizzle({
 	},
 	schema,
 });
+
+export function createZodSchema<T extends Table>(table: T) {
+	return {
+		insert: createInsertSchema<T>(table),
+		select: createSelectSchema<T>(table),
+	};
+}

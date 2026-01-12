@@ -19,7 +19,8 @@
 		"@libsql/client": "catalog:",
 		"@server-updator/env": "workspace:*",
 		"dotenv": "catalog:",
-		"drizzle-orm": "^0.45.1",
+		"drizzle-orm": "catalog:",
+		"drizzle-zod": "^0.8.3",
 		"libsql": "catalog:",
 		"zod": "catalog:"
 	},

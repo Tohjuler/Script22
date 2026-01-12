@@ -105,3 +105,11 @@ export const accountRelations = relations(account, ({ one }) => ({
 		references: [user.id],
 	}),
 }));
+
+export const AuthTables = {
+	user,
+	session,
+	account,
+	verification,
+} as const;
+export type AuthTables = typeof AuthTables;
