@@ -1,5 +1,5 @@
 {
-	"name": "@server-updator/api",
+	"name": "@server-updator/logic",
 	"type": "module",
 	"exports": {
 		".": {
@@ -11,18 +11,13 @@
 	},
 	"scripts": {},
 	"dependencies": {
-		"@orpc/client": "catalog:",
-		"@orpc/openapi": "catalog:",
-		"@orpc/server": "catalog:",
-		"@orpc/zod": "catalog:",
-		"@server-updator/logic": "workspace:*",
-		"@server-updator/auth": "workspace:*",
 		"@server-updator/db": "workspace:*",
 		"@server-updator/env": "workspace:*",
-		"dotenv": "catalog:",
-		"zod": "catalog:",
-		"elysia": "catalog:",
-		"drizzle-orm": "catalog:"
+		"@types/ssh2": "^1.15.5",
+		"cron": "^4.4.0",
+		"drizzle-orm": "catalog:",
+		"ssh2": "^1.17.0",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@server-updator/config": "workspace:*",

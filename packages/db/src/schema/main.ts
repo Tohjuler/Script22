@@ -22,7 +22,9 @@ export const folderRelations = relations(folder, ({ many }) => ({
 export const server = sqliteTable("server", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	name: text("name").notNull(),
+	username: text("username").notNull(),
 	host: text("host").notNull().unique(),
+	port: integer("port").notNull().default(22),
 	authType: text("auth_type").notNull(),
 	auth: text("auth"),
 	folderId: integer("folder_id").references(() => folder.id),

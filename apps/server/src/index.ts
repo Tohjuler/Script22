@@ -9,6 +9,7 @@ import { createContext } from "@server-updator/api/context";
 import { appRouter } from "@server-updator/api/routers/index";
 import { auth } from "@server-updator/auth";
 import { env } from "@server-updator/env/server";
+import { handleCronJobs } from "@server-updator/logic/cronJobs";
 import { Elysia } from "elysia";
 
 const rpcHandler = new RPCHandler(appRouter, {
@@ -66,4 +67,9 @@ const app = new Elysia()
 	.get("/", () => "OK")
 	.listen(3000, () => {
 		console.log("Server is running on http://localhost:3000");
+
+		console.log("Starting cron jobs...")
+		handleCronJobs().catch((err) => {
+			console.error("Error starting cron jobs:", err);
+		});
 	});

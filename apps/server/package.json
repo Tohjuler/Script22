@@ -15,6 +15,7 @@
 		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
 		"@server-updator/api": "workspace:*",
+		"@server-updator/logic": "workspace:*",
 		"@server-updator/auth": "workspace:*",
 		"@server-updator/db": "workspace:*",
 		"@server-updator/env": "workspace:*",
