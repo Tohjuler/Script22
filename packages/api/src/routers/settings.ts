@@ -1,5 +1,5 @@
 import { db } from "@server-updator/db";
-import { Tables } from "@server-updator/db/schema/main";
+import { AuthTables, Tables } from "@server-updator/db/schema/index";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
 import { protectedProcedure as pp } from "../index";
@@ -41,4 +41,8 @@ export const settingsRouter = {
 				.returning();
 			return updatedSetting;
 		}),
+
+	needSetup: pp.handler(async () => {
+		return await db.$count(AuthTables.user) === 0;
+	}),
 };

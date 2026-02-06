@@ -9,86 +9,115 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PathlessLayoutRouteRouteImport } from './routes/_pathlessLayout/route'
+import { Route as PathlessLayoutIndexRouteImport } from './routes/_pathlessLayout/index'
+import { Route as authSetupRouteImport } from './routes/(auth)/setup'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const PathlessLayoutRouteRoute = PathlessLayoutRouteRouteImport.update({
+  id: '/_pathlessLayout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const PathlessLayoutIndexRoute = PathlessLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => PathlessLayoutRouteRoute,
+} as any)
+const authSetupRoute = authSetupRouteImport.update({
+  id: '/(auth)/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/login': typeof authLoginRoute
+  '/setup': typeof authSetupRoute
+  '/': typeof PathlessLayoutIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/login': typeof authLoginRoute
+  '/setup': typeof authSetupRoute
+  '/': typeof PathlessLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/_pathlessLayout': typeof PathlessLayoutRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/setup': typeof authSetupRoute
+  '/_pathlessLayout/': typeof PathlessLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login'
+  fullPaths: '/login' | '/setup' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login'
-  id: '__root__' | '/' | '/dashboard' | '/login'
+  to: '/login' | '/setup' | '/'
+  id:
+    | '__root__'
+    | '/_pathlessLayout'
+    | '/(auth)/login'
+    | '/(auth)/setup'
+    | '/_pathlessLayout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  LoginRoute: typeof LoginRoute
+  PathlessLayoutRouteRoute: typeof PathlessLayoutRouteRouteWithChildren
+  authLoginRoute: typeof authLoginRoute
+  authSetupRoute: typeof authSetupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/_pathlessLayout': {
+      id: '/_pathlessLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof PathlessLayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_pathlessLayout/': {
+      id: '/_pathlessLayout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PathlessLayoutIndexRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
+    '/(auth)/setup': {
+      id: '/(auth)/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof authSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface PathlessLayoutRouteRouteChildren {
+  PathlessLayoutIndexRoute: typeof PathlessLayoutIndexRoute
+}
+
+const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
+  PathlessLayoutIndexRoute: PathlessLayoutIndexRoute,
+}
+
+const PathlessLayoutRouteRouteWithChildren =
+  PathlessLayoutRouteRoute._addFileChildren(PathlessLayoutRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  LoginRoute: LoginRoute,
+  PathlessLayoutRouteRoute: PathlessLayoutRouteRouteWithChildren,
+  authLoginRoute: authLoginRoute,
+  authSetupRoute: authSetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
