@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { JobSheet } from "@/components/job-sheet";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { client } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_pathlessLayout/")({
@@ -19,18 +20,39 @@ function DashboardPage() {
 		queryFn: () => client.jobs.getList({}),
 	});
 
+	const { data: hosts } = useQuery({
+		queryKey: ["hosts", "getList"],
+		queryFn: () => client.servers.getList({}),
+	});
+
 	return (
 		<div className="space-y-8 p-4">
-			<div className="flex items-center gap-2">
-				<Button variant="outline" size="sm">
-					✕ Hosts
-				</Button>
-				<Button variant="outline" size="sm">
-					✕ Hosts online
-				</Button>
-				<Button variant="outline" size="sm">
-					✕ Jobs
-				</Button>
+			{/* Stats Cards */}
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+				<Card className="p-6">
+					<div className="space-y-2">
+						<p className="font-medium text-muted-foreground text-sm">
+							Total Hosts
+						</p>
+						<p className="font-bold text-3xl">{hosts?.length ?? 0}</p>
+					</div>
+				</Card>
+				<Card className="p-6">
+					<div className="space-y-2">
+						<p className="font-medium text-muted-foreground text-sm">
+							Hosts Online
+						</p>
+						<p className="font-bold text-3xl">0</p>
+					</div>
+				</Card>
+				<Card className="p-6">
+					<div className="space-y-2">
+						<p className="font-medium text-muted-foreground text-sm">
+							Total Jobs
+						</p>
+						<p className="font-bold text-3xl">{jobs?.length ?? 0}</p>
+					</div>
+				</Card>
 			</div>
 
 			{/* Main Content Grid */}
