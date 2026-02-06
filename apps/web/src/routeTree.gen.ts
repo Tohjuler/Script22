@@ -13,6 +13,7 @@ import { Route as PathlessLayoutRouteRouteImport } from './routes/_pathlessLayou
 import { Route as PathlessLayoutIndexRouteImport } from './routes/_pathlessLayout/index'
 import { Route as authSetupRouteImport } from './routes/(auth)/setup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as PathlessLayoutHostsHostIdRouteImport } from './routes/_pathlessLayout/hosts.$hostId'
 
 const PathlessLayoutRouteRoute = PathlessLayoutRouteRouteImport.update({
   id: '/_pathlessLayout',
@@ -33,16 +34,24 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PathlessLayoutHostsHostIdRoute =
+  PathlessLayoutHostsHostIdRouteImport.update({
+    id: '/hosts/$hostId',
+    path: '/hosts/$hostId',
+    getParentRoute: () => PathlessLayoutRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/setup': typeof authSetupRoute
   '/': typeof PathlessLayoutIndexRoute
+  '/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/setup': typeof authSetupRoute
   '/': typeof PathlessLayoutIndexRoute
+  '/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,18 +59,20 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/setup': typeof authSetupRoute
   '/_pathlessLayout/': typeof PathlessLayoutIndexRoute
+  '/_pathlessLayout/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/setup' | '/'
+  fullPaths: '/login' | '/setup' | '/' | '/hosts/$hostId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/setup' | '/'
+  to: '/login' | '/setup' | '/' | '/hosts/$hostId'
   id:
     | '__root__'
     | '/_pathlessLayout'
     | '/(auth)/login'
     | '/(auth)/setup'
     | '/_pathlessLayout/'
+    | '/_pathlessLayout/hosts/$hostId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,15 +111,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_pathlessLayout/hosts/$hostId': {
+      id: '/_pathlessLayout/hosts/$hostId'
+      path: '/hosts/$hostId'
+      fullPath: '/hosts/$hostId'
+      preLoaderRoute: typeof PathlessLayoutHostsHostIdRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
   }
 }
 
 interface PathlessLayoutRouteRouteChildren {
   PathlessLayoutIndexRoute: typeof PathlessLayoutIndexRoute
+  PathlessLayoutHostsHostIdRoute: typeof PathlessLayoutHostsHostIdRoute
 }
 
 const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
   PathlessLayoutIndexRoute: PathlessLayoutIndexRoute,
+  PathlessLayoutHostsHostIdRoute: PathlessLayoutHostsHostIdRoute,
 }
 
 const PathlessLayoutRouteRouteWithChildren =

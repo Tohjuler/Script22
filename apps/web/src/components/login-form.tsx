@@ -17,7 +17,7 @@ import { authClient } from "@/lib/auth-client";
 
 export function LoginForm() {
 	const navigate = useNavigate({
-		from: "/",
+		from: "/login",
 	});
 
 	const form = useForm({
@@ -33,9 +33,9 @@ export function LoginForm() {
 				},
 				{
 					onSuccess: () => {
-						navigate({
-							to: "/",
-						});
+						// navigate({
+						// 	to: "/",
+						// });
 						toast.success("Sign in successful");
 					},
 					onError: (error) => {
@@ -53,82 +53,80 @@ export function LoginForm() {
 	});
 
 	return (
-		<div className="mx-auto mt-20 flex max-w-md flex-col gap-6">
-			<Card>
-				<CardHeader>
-					<CardTitle>Login to your account</CardTitle>
-					<CardDescription>
-						Enter your email below to login to your account
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							form.handleSubmit();
-						}}
-					>
-						<FieldGroup>
-							<form.Field name="email">
-								{(field) => (
-									<Field>
-										<FieldLabel htmlFor={field.name}>Email</FieldLabel>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="email"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-										{field.state.meta.errors.map((error) => (
-											<p key={error?.message} className="text-red-500">
-												{error?.message}
-											</p>
-										))}
-									</Field>
+		<Card className="mx-auto mt-20 max-w-md">
+			<CardHeader>
+				<CardTitle>Login to your account</CardTitle>
+				<CardDescription>
+					Enter your email below to login to your account
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
+					}}
+				>
+					<FieldGroup>
+						<form.Field name="email">
+							{(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Email</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500">
+											{error?.message}
+										</p>
+									))}
+								</Field>
+							)}
+						</form.Field>
+						<form.Field name="password">
+							{(field) => (
+								<Field>
+									<div className="flex items-center">
+										<FieldLabel htmlFor={field.name}>Password</FieldLabel>
+									</div>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="password"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+									{field.state.meta.errors.map((error) => (
+										<p key={error?.message} className="text-red-500">
+											{error?.message}
+										</p>
+									))}
+								</Field>
+							)}
+						</form.Field>
+						<Field>
+							<form.Subscribe>
+								{(state) => (
+									<Button
+										type="submit"
+										className="w-full"
+										disabled={!state.canSubmit || state.isSubmitting}
+									>
+										{state.isSubmitting ? "Submitting..." : "Login"}
+									</Button>
 								)}
-							</form.Field>
-							<form.Field name="password">
-								{(field) => (
-									<Field>
-										<div className="flex items-center">
-											<FieldLabel htmlFor={field.name}>Password</FieldLabel>
-										</div>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="password"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-										{field.state.meta.errors.map((error) => (
-											<p key={error?.message} className="text-red-500">
-												{error?.message}
-											</p>
-										))}
-									</Field>
-								)}
-							</form.Field>
-							<Field>
-								<form.Subscribe>
-									{(state) => (
-										<Button
-											type="submit"
-											className="w-full"
-											disabled={!state.canSubmit || state.isSubmitting}
-										>
-											{state.isSubmitting ? "Submitting..." : "Login"}
-										</Button>
-									)}
-								</form.Subscribe>
-							</Field>
-						</FieldGroup>
-					</form>
-				</CardContent>
-			</Card>
-		</div>
+							</form.Subscribe>
+						</Field>
+					</FieldGroup>
+				</form>
+			</CardContent>
+		</Card>
 	);
 }

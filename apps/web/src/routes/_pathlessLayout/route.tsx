@@ -1,11 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Separator } from "@/components/ui/separator";
-import {
-	SidebarInset,
-	SidebarProvider,
-	SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { useState } from "react";
+import { HostSheet } from "@/components/host-sheet";
+import { HostsSidebar } from "@/components/hosts-sidebar";
 import { getUser } from "@/functions/get-user";
 import { orpc } from "@/utils/orpc";
 
@@ -14,7 +10,7 @@ export const Route = createFileRoute("/_pathlessLayout")({
 	beforeLoad: async () => {
 		const session = await getUser();
 		const needSetup = await orpc.settings.needSetup.call();
-		
+
 		return { session, needSetup };
 	},
 	loader: async ({ context }) => {
@@ -27,29 +23,21 @@ export const Route = createFileRoute("/_pathlessLayout")({
 		if (!context.session) {
 			throw redirect({
 				to: "/login",
-			})
+			});
 		}
 	},
 });
 
 function RouteComponent() {
-	const { session } = Route.useRouteContext();
-	const user = session!.user;
+	const [isHostSheetOpen, setIsHostSheetOpen] = useState(false);
 
 	return (
-		<SidebarProvider>
-			<AppSidebar tree={[]} user={user} />
-			<SidebarInset>
-				<header className="flex h-8 shrink-0 items-center gap-2 border-b">
-					<div className="flex items-center gap-2 px-3">
-						<SidebarTrigger />
-						<Separator orientation="vertical" className="mr-2 h-4" />
-					</div>
-				</header>
-				<div className="p-2">
-					<Outlet />
-				</div>
-			</SidebarInset>
-		</SidebarProvider>
+		<div className="flex h-screen bg-background">
+			<HostsSidebar onAddHost={() => setIsHostSheetOpen(true)} />
+			<div className="flex flex-1 flex-col overflow-hidden">
+				<Outlet />
+			</div>
+			<HostSheet open={isHostSheetOpen} onOpenChange={setIsHostSheetOpen} />
+		</div>
 	);
 }

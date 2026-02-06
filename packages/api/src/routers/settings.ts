@@ -2,7 +2,7 @@ import { db } from "@server-updator/db";
 import { AuthTables, Tables } from "@server-updator/db/schema/index";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
-import { protectedProcedure as pp } from "../index";
+import { protectedProcedure as pp, publicProcedure } from "../index";
 
 export const settingsRouter = {
 	getAll: pp.handler(async () => {
@@ -42,7 +42,7 @@ export const settingsRouter = {
 			return updatedSetting;
 		}),
 
-	needSetup: pp.handler(async () => {
+	needSetup: publicProcedure.handler(async () => {
 		return await db.$count(AuthTables.user) === 0;
 	}),
 };

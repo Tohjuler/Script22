@@ -27,5 +27,9 @@ export const Route = createFileRoute("/(auth)/setup")({
 });
 
 function RouteComponent() {
-	return <SetupForm />;
+	return (
+		<div className="w-full">
+			<SetupForm />
+		</div>
+	);
 }
