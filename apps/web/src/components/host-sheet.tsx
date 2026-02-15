@@ -6,6 +6,14 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Sheet,
 	SheetContent,
 	SheetDescription,
@@ -32,6 +40,12 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 	const { data: folders } = useQuery({
 		queryKey: ["folders", "getList"],
 		queryFn: () => client.folders.getList({}),
+	});
+
+	const [showFolderForm, setShowFolderForm] = useState(false);
+	const [folderFormData, setFolderFormData] = useState({
+		name: "",
+		color: "#3b82f6",
 	});
 
 	const [formData, setFormData] = useState({
@@ -85,6 +99,21 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 		},
 	});
 
+	const createFolderMutation = useMutation({
+		mutationFn: (input: typeof folderFormData) => client.folders.create(input),
+		onSuccess: (newFolder) => {
+			toast.success("Folder created successfully");
+			queryClient.invalidateQueries({ queryKey: ["folders"] });
+			// Auto-select the newly created folder
+			setFormData({ ...formData, folderId: newFolder[0].id });
+			setShowFolderForm(false);
+			setFolderFormData({ name: "", color: "#3b82f6" });
+		},
+		onError: (error: Error) => {
+			toast.error(`Failed to create folder: ${error.message}`);
+		},
+	});
+
 	const resetForm = () => {
 		setFormData({
 			name: "",
@@ -95,6 +124,8 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 			auth: "",
 			folderId: null,
 		});
+		setShowFolderForm(false);
+		setFolderFormData({ name: "", color: "#3b82f6" });
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -122,7 +153,7 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 					</SheetDescription>
 				</SheetHeader>
 
-				<form onSubmit={handleSubmit} className="mt-6 space-y-4">
+				<form onSubmit={handleSubmit} className="mt-3 space-y-4 px-3">
 					<Field>
 						<Label htmlFor="name">Name</Label>
 						<Input
@@ -177,20 +208,23 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 
 					<Field>
 						<Label htmlFor="authType">Auth Type</Label>
-						<select
-							id="authType"
+						<Select
 							value={formData.authType}
-							onChange={(e) =>
+							onValueChange={(value) =>
 								setFormData({
 									...formData,
-									authType: e.target.value as "password" | "key",
+									authType: value as "password" | "key",
 								})
 							}
-							className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 						>
-							<option value="password">Password</option>
-							<option value="key">SSH Key</option>
-						</select>
+							<SelectTrigger id="authType">
+								<SelectValue placeholder="Select auth type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="password">Password</SelectItem>
+								<SelectItem value="key">SSH Key</SelectItem>
+							</SelectContent>
+						</Select>
 					</Field>
 
 					<Field>
@@ -214,25 +248,107 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 
 					<Field>
 						<Label htmlFor="folder">Folder (Optional)</Label>
-						<select
-							id="folder"
-							value={formData.folderId || ""}
-							onChange={(e) =>
-								setFormData({
-									...formData,
-									folderId: e.target.value ? Number(e.target.value) : null,
-								})
-							}
-							className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						<Select
+							value={formData.folderId?.toString() || "__no_folder__"}
+							onValueChange={(value) => {
+								if (value === "__create__") {
+									setShowFolderForm(true);
+								} else {
+									setFormData({
+										...formData,
+										folderId: value === "__no_folder__" ? null : Number(value),
+									});
+								}
+							}}
 						>
-							<option value="">No folder</option>
-							{folders?.map((folder) => (
-								<option key={folder.id} value={folder.id}>
-									{folder.name}
-								</option>
-							))}
-						</select>
+							<SelectTrigger id="folder">
+								<SelectValue placeholder="No folder" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="__no_folder__">No folder</SelectItem>
+								{folders?.map((folder) => (
+									<SelectItem key={folder.id} value={folder.id.toString()}>
+										{folder.name}
+									</SelectItem>
+								))}
+								<SelectSeparator />
+								<SelectItem value="__create__">+ Create new folder</SelectItem>
+							</SelectContent>
+						</Select>
 					</Field>
+
+					{showFolderForm && (
+						<>
+							<Field>
+								<Label htmlFor="folder-name">Folder Name</Label>
+								<Input
+									id="folder-name"
+									value={folderFormData.name}
+									onChange={(e) =>
+										setFolderFormData({
+											...folderFormData,
+											name: e.target.value,
+										})
+									}
+									placeholder="Production"
+									autoFocus
+								/>
+							</Field>
+
+							<Field>
+								<Label htmlFor="folder-color">Color (Optional)</Label>
+								<div className="flex gap-2">
+									<Input
+										id="folder-color"
+										type="color"
+										value={folderFormData.color}
+										onChange={(e) =>
+											setFolderFormData({
+												...folderFormData,
+												color: e.target.value,
+											})
+										}
+										className="h-9 w-20 cursor-pointer"
+									/>
+									<Input
+										value={folderFormData.color}
+										onChange={(e) =>
+											setFolderFormData({
+												...folderFormData,
+												color: e.target.value,
+											})
+										}
+										placeholder="#3b82f6"
+										className="flex-1"
+									/>
+								</div>
+							</Field>
+
+							<div className="flex gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										setShowFolderForm(false);
+										setFolderFormData({ name: "", color: "#3b82f6" });
+									}}
+									className="flex-1"
+								>
+									Cancel
+								</Button>
+								<Button
+									type="button"
+									onClick={() => createFolderMutation.mutate(folderFormData)}
+									disabled={
+										createFolderMutation.isPending || !folderFormData.name
+									}
+									className="flex-1"
+								>
+									Create Folder
+								</Button>
+							</div>
+						</>
+					)}
 
 					<div className="flex gap-2 pt-4">
 						<Button

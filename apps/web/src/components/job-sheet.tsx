@@ -1,9 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import z from "zod";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +14,31 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { client, queryClient } from "@/utils/orpc";
+import { SimpleYamlEditor } from "./simple-yaml-editor";
+
+const DEFAULT_CONFIG = `schedule:
+  enabled: false
+  cron: 0 0 * * *
+  # Only run on thise servers when on schedule, if empty run on all
+  servers: []
+  # Exclude thise servers
+  excludeServers: []
+continueOnFailure: false
+commands: 
+  - echo "Hello, World!"`;
+
+const jobConfig = z.object({
+	schedule: z
+		.object({
+			enabled: z.boolean().default(false),
+			cron: z.string(),
+			servers: z.array(z.string()).optional(),
+			excludeServers: z.array(z.string()).optional(),
+		})
+		.optional(),
+	continueOnFailure: z.boolean().default(false),
+	commands: z.array(z.string()).min(1),
+});
 
 interface JobSheetProps {
 	open: boolean;
@@ -33,22 +57,15 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 
 	const [formData, setFormData] = useState({
 		name: "",
-		scheduleEnabled: false,
-		cron: "",
-		continueOnFailure: false,
-		commands: [""],
+		config: DEFAULT_CONFIG,
 	});
 
 	// Update form when job data loads
 	useEffect(() => {
 		if (job) {
-			const config = JSON.parse(job.config);
 			setFormData({
-				name: config.name || job.name,
-				scheduleEnabled: config.schedule?.enabled || false,
-				cron: config.schedule?.cron || "",
-				continueOnFailure: config.continueOnFailure || false,
-				commands: config.commands || [""],
+				name: job.name,
+				config: job.config,
 			});
 		}
 	}, [job]);
@@ -83,62 +100,30 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 	const resetForm = () => {
 		setFormData({
 			name: "",
-			scheduleEnabled: false,
-			cron: "",
-			continueOnFailure: false,
-			commands: [""],
+			config: DEFAULT_CONFIG,
 		});
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const config = {
-			name: formData.name,
-			schedule: formData.scheduleEnabled
-				? {
-						enabled: true,
-						cron: formData.cron,
-					}
-				: undefined,
-			continueOnFailure: formData.continueOnFailure,
-			commands: formData.commands.filter((cmd) => cmd.trim() !== ""),
-		};
-
 		if (isEditing) {
 			updateMutation.mutate({
 				id: jobId!,
 				name: formData.name,
-				config: JSON.stringify(config),
+				config: formData.config,
 			});
 		} else {
 			createMutation.mutate({
 				name: formData.name,
-				config: JSON.stringify(config),
+				config: formData.config,
 			});
 		}
 	};
 
-	const addCommand = () => {
-		setFormData({ ...formData, commands: [...formData.commands, ""] });
-	};
-
-	const removeCommand = (index: number) => {
-		setFormData({
-			...formData,
-			commands: formData.commands.filter((_, i) => i !== index),
-		});
-	};
-
-	const updateCommand = (index: number, value: string) => {
-		const newCommands = [...formData.commands];
-		newCommands[index] = value;
-		setFormData({ ...formData, commands: newCommands });
-	};
-
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent className="overflow-y-auto">
+			<SheetContent className="max-w-[90vw] overflow-y-auto data-[side=right]:md:max-w-[40vw]">
 				<SheetHeader>
 					<SheetTitle>{isEditing ? "Edit Job" : "Create Job"}</SheetTitle>
 					<SheetDescription>
@@ -148,7 +133,7 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 					</SheetDescription>
 				</SheetHeader>
 
-				<form onSubmit={handleSubmit} className="mt-6 space-y-4">
+				<form onSubmit={handleSubmit} className="mt-3 space-y-4 px-3">
 					<Field>
 						<Label htmlFor="name">Name</Label>
 						<Input
@@ -158,99 +143,24 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 								setFormData({ ...formData, name: e.target.value })
 							}
 							placeholder="Update packages"
+							autoComplete="off"
 							required
 						/>
 					</Field>
 
 					<Field>
-						<div className="flex items-center space-x-2">
-							<Checkbox
-								id="scheduleEnabled"
-								checked={formData.scheduleEnabled}
-								onCheckedChange={(checked) =>
-									setFormData({
-										...formData,
-										scheduleEnabled: checked as boolean,
-									})
-								}
-							/>
-							<Label htmlFor="scheduleEnabled" className="cursor-pointer">
-								Enable Schedule
-							</Label>
-						</div>
+						<Label htmlFor="config">Config</Label>
+						<SimpleYamlEditor
+							id="config"
+							value={formData.config}
+							onValueChange={(value) =>
+								setFormData({ ...formData, config: value })
+							}
+							placeholder={DEFAULT_CONFIG}
+							className="font-mono"
+							zodType={jobConfig}
+						/>
 					</Field>
-
-					{formData.scheduleEnabled && (
-						<Field>
-							<Label htmlFor="cron">Cron Expression</Label>
-							<Input
-								id="cron"
-								value={formData.cron}
-								onChange={(e) =>
-									setFormData({ ...formData, cron: e.target.value })
-								}
-								placeholder="0 0 * * *"
-								required={formData.scheduleEnabled}
-							/>
-							<p className="mt-1 text-muted-foreground text-xs">
-								Example: 0 0 * * * (daily at midnight)
-							</p>
-						</Field>
-					)}
-
-					<Field>
-						<div className="flex items-center space-x-2">
-							<Checkbox
-								id="continueOnFailure"
-								checked={formData.continueOnFailure}
-								onCheckedChange={(checked) =>
-									setFormData({
-										...formData,
-										continueOnFailure: checked as boolean,
-									})
-								}
-							/>
-							<Label htmlFor="continueOnFailure" className="cursor-pointer">
-								Continue on failure
-							</Label>
-						</div>
-					</Field>
-
-					<div className="space-y-2">
-						<div className="flex items-center justify-between">
-							<Label>Commands</Label>
-							<Button
-								type="button"
-								size="sm"
-								variant="outline"
-								onClick={addCommand}
-							>
-								<Plus className="mr-1 h-4 w-4" />
-								Add
-							</Button>
-						</div>
-						{formData.commands.map((command, index) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: For now we'll use index as key
-							<div key={index} className="flex gap-2">
-								<Input
-									value={command}
-									onChange={(e) => updateCommand(index, e.target.value)}
-									placeholder="apt update && apt upgrade -y"
-									required
-								/>
-								{formData.commands.length > 1 && (
-									<Button
-										type="button"
-										size="icon"
-										variant="ghost"
-										onClick={() => removeCommand(index)}
-									>
-										<Trash className="h-4 w-4" />
-									</Button>
-								)}
-							</div>
-						))}
-					</div>
 
 					<div className="flex gap-2 pt-4">
 						<Button

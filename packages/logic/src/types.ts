@@ -1,7 +1,6 @@
 import z from "zod/v4";
 
 export const jobConfig = z.object({
-	name: z.string().min(3),
 	schedule: z
 		.object({
 			enabled: z.boolean().default(false),

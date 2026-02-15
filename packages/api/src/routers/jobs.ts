@@ -6,6 +6,7 @@ import {
 } from "@server-updator/logic/cronJobs";
 import runJob from "@server-updator/logic/jobRunner";
 import { jobConfig } from "@server-updator/logic/types";
+import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
@@ -36,7 +37,16 @@ export const jobsRouter = {
 		)
 		.handler(async ({ input }) => {
 			// Validate config
-			const parsed = jobConfig.safeParse(JSON.parse(input.config));
+			let config: unknown;
+			try {
+				config = YAML.parse(input.config);
+			} catch (err) {
+				throw new Error(
+					`Invalid YAML config: ${err instanceof Error ? err.message : `${err}`}`,
+				);
+			}
+
+			const parsed = jobConfig.safeParse(config);
 			if (!parsed.success) {
 				throw new Error(`Invalid job config: ${z.prettifyError(parsed.error)}`);
 			}

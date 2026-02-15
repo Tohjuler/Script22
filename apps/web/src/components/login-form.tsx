@@ -33,9 +33,9 @@ export function LoginForm() {
 				},
 				{
 					onSuccess: () => {
-						// navigate({
-						// 	to: "/",
-						// });
+						navigate({
+							to: "/",
+						});
 						toast.success("Sign in successful");
 					},
 					onError: (error) => {
