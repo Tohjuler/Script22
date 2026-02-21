@@ -1,6 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -26,10 +36,17 @@ interface HostSheetProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	hostId?: number;
+	onDeleted?: () => void;
 }
 
-export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
+export function HostSheet({
+	open,
+	onOpenChange,
+	hostId,
+	onDeleted,
+}: HostSheetProps) {
 	const isEditing = !!hostId;
+	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
 	const { data: host } = useQuery({
 		queryKey: ["servers", "getById", hostId],
@@ -67,7 +84,7 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 				port: host.port,
 				username: host.username,
 				authType: host.authType as "password" | "key",
-				auth: host.auth || "",
+				auth: "", // The server will NEVER return the auth details, so we leave this blank
 				folderId: host.folder?.id || null,
 			});
 		}
@@ -87,8 +104,12 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: (input: { id: number } & Partial<typeof formData>) =>
-			client.servers.update(input),
+		mutationFn: (input: { id: number } & Partial<typeof formData>) => {
+			const filteredInput = Object.fromEntries(
+				Object.entries(input).filter(([_, value]) => value !== ""),
+			);
+			return client.servers.update(filteredInput as typeof input);
+		},
 		onSuccess: () => {
 			toast.success("Host updated successfully");
 			queryClient.invalidateQueries({ queryKey: ["servers"] });
@@ -96,6 +117,21 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 		},
 		onError: (error: Error) => {
 			toast.error(`Failed to update host: ${error.message}`);
+		},
+	});
+
+	const deleteMutation = useMutation({
+		mutationFn: () => client.servers.delete({ id: hostId! }),
+		onSuccess: () => {
+			toast.success("Host deleted successfully");
+			queryClient.invalidateQueries({ queryKey: ["servers"] });
+			queryClient.invalidateQueries({ queryKey: ["runs"] });
+			onOpenChange(false);
+			setIsDeleteDialogOpen(false);
+			onDeleted?.();
+		},
+		onError: (error: Error) => {
+			toast.error(`Failed to delete host: ${error.message}`);
 		},
 	});
 
@@ -233,7 +269,7 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 						</Label>
 						<Input
 							id="auth"
-							type={formData.authType === "password" ? "password" : "text"}
+							type="password" // Always use password type to hide the input, even for SSH keys
 							value={formData.auth}
 							onChange={(e) =>
 								setFormData({ ...formData, auth: e.target.value })
@@ -244,6 +280,12 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 									: "Enter SSH key"
 							}
 						/>
+						{isEditing && (
+							<p className="text-muted-foreground text-sm">
+								Leave blank to keep existing{" "}
+								{formData.authType === "password" ? "password" : "SSH key"}
+							</p>
+						)}
 					</Field>
 
 					<Field>
@@ -351,6 +393,17 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 					)}
 
 					<div className="flex gap-2 pt-4">
+						{isEditing && (
+							<Button
+								type="button"
+								variant="destructive"
+								onClick={() => setIsDeleteDialogOpen(true)}
+								disabled={deleteMutation.isPending}
+								className="flex-1"
+							>
+								Delete
+							</Button>
+						)}
 						<Button
 							type="button"
 							variant="outline"
@@ -368,6 +421,33 @@ export function HostSheet({ open, onOpenChange, hostId }: HostSheetProps) {
 						</Button>
 					</div>
 				</form>
+
+				<AlertDialog
+					open={isDeleteDialogOpen}
+					onOpenChange={setIsDeleteDialogOpen}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Delete Host</AlertDialogTitle>
+							<AlertDialogDescription>
+								Are you sure you want to delete this host? This action cannot be
+								undone.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel disabled={deleteMutation.isPending}>
+								Cancel
+							</AlertDialogCancel>
+							<AlertDialogAction
+								onClick={() => deleteMutation.mutate()}
+								disabled={deleteMutation.isPending}
+								className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+							>
+								{deleteMutation.isPending ? "Deleting..." : "Delete"}
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
 			</SheetContent>
 		</Sheet>
 	);

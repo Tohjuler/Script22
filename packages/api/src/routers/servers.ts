@@ -27,6 +27,9 @@ export const serversRouter = {
 		.input(z.object({ id: z.number() }))
 		.handler(async ({ input }) => {
 			const server = await db.query.server.findFirst({
+				columns: {
+					auth: false, // NEVER return auth details
+				},
 				where: (server, { eq }) => eq(server.id, input.id),
 				with: {
 					folder: true,

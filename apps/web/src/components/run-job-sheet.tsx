@@ -57,7 +57,7 @@ export function RunJobSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent>
+			<SheetContent className="p-2">
 				<SheetHeader>
 					<SheetTitle>Run Job</SheetTitle>
 					<SheetDescription>
@@ -65,7 +65,7 @@ export function RunJobSheet({
 					</SheetDescription>
 				</SheetHeader>
 
-				<form onSubmit={handleSubmit} className="mt-6 space-y-4">
+				<form onSubmit={handleSubmit} className="mt-3 space-y-4 px-3">
 					<Field>
 						<Label htmlFor="job">Job</Label>
 						<select

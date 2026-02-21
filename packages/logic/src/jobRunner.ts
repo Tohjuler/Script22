@@ -88,6 +88,16 @@ export default async function runJob(
 			};
 			execCommand(conn, config.commands[0] || "", callback);
 		})
+		.on("error", (err) => {
+			console.error("SSH Connection error", err);
+			finish("failed", [
+				{
+					status: -1,
+					stdout: "",
+					stderr: `SSH connection error: ${err.message}`,
+				},
+			]);
+		})
 		.connect({
 			host: server.host,
 			port: server.port,
