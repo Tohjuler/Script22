@@ -21,14 +21,13 @@ export default function SetupForm() {
 			email: "",
 			password: "",
 			confirmPassword: "",
-			name: "",
 		},
 		onSubmit: async ({ value }) => {
 			await authClient.signUp.email(
 				{
+					name: value.email,
 					email: value.email,
 					password: value.password,
-					name: value.name,
 				},
 				{
 					onSuccess: () => {
@@ -46,7 +45,6 @@ export default function SetupForm() {
 		validators: {
 			onSubmit: z
 				.object({
-					name: z.string().min(2, "Name must be at least 2 characters"),
 					email: z.email("Invalid email address"),
 					password: z.string().min(8, "Password must be at least 8 characters"),
 					confirmPassword: z
@@ -75,26 +73,6 @@ export default function SetupForm() {
 					className="space-y-4"
 				>
 					<FieldGroup>
-						<form.Field name="name">
-							{(field) => (
-								<Field>
-									<Label htmlFor={field.name}>Name</Label>
-									<Input
-										id={field.name}
-										name={field.name}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-									{field.state.meta.errors.map((error) => (
-										<p key={error?.message} className="text-red-500">
-											{error?.message}
-										</p>
-									))}
-								</Field>
-							)}
-						</form.Field>
-
 						<form.Field name="email">
 							{(field) => (
 								<Field>

@@ -26,11 +26,30 @@ export const auth = betterAuth({
 		},
 	},
 	plugins: [],
+	databaseHooks: {
+		user: {
+			create: {
+				before: async (user, ctx) => {
+					if (ctx?.path === "/sign-up/email") {
+						// Temporary fix for better-auth issue #424
+						if (user.name === user.email) {
+							return {
+								data: {
+									...user,
+									name: undefined,
+								},
+							};
+						}
+					}
+				},
+			},
+		},
+	},
 	hooks: {
 		before: createAuthMiddleware(async (ctx) => {
 			if (ctx.path.startsWith("/sign-up")) {
 				const hasUser = (await db.$count(AuthTables.user)) !== 0;
-				
+
 				if (hasUser) {
 					throw new APIError("BAD_REQUEST", {
 						message: "Endpoint not allowed",
