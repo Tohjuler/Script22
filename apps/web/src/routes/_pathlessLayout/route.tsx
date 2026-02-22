@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { HostSheet } from "@/components/host-sheet";
 import { HostsSidebar } from "@/components/hosts-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getUser } from "@/functions/get-user";
 import { orpc } from "@/utils/orpc";
 
@@ -32,12 +33,12 @@ function RouteComponent() {
 	const [isHostSheetOpen, setIsHostSheetOpen] = useState(false);
 
 	return (
-		<div className="flex h-screen bg-background">
+		<SidebarProvider>
 			<HostsSidebar onAddHost={() => setIsHostSheetOpen(true)} />
-			<div className="flex flex-1 flex-col overflow-hidden">
+			<SidebarInset className="overflow-hidden">
 				<Outlet />
-			</div>
+			</SidebarInset>
 			<HostSheet open={isHostSheetOpen} onOpenChange={setIsHostSheetOpen} />
-		</div>
+		</SidebarProvider>
 	);
 }

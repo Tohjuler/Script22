@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/utils/orpc";
 
 import appCss from "../index.css?url";
+import '@fontsource/maple-mono/index.css';
 export interface RouterAppContext {
 	orpc: typeof orpc;
 	queryClient: QueryClient;
@@ -53,7 +54,7 @@ function RootDocument() {
 					<Outlet />
 				</div>
 				<Toaster richColors />
-				<TanStackRouterDevtools position="bottom-left" />
+				<TanStackRouterDevtools position="bottom-right" />
 				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
 				<Scripts />
 			</body>

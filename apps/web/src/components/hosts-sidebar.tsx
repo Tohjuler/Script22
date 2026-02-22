@@ -1,24 +1,53 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, Folder, Plus, Server } from "lucide-react";
-import { useState } from "react";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import {
+	ChevronRight,
+	Folder,
+	LogOut,
+	Plus,
+	Server,
+	Settings,
+} from "lucide-react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarMenuSub,
+	SidebarRail,
+} from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
 import { client } from "@/utils/orpc";
 
 interface HostsSidebarProps {
 	onAddHost?: () => void;
 }
 
+type ServerTreeItem =
+	| { type: "server"; id: number; label: string }
+	| {
+			type: "folder";
+			id: number;
+			label: string;
+			color?: string;
+			items: ServerTreeItem[];
+	  };
+
 export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 	const params = useParams({ strict: false });
+	const navigate = useNavigate();
 	const hostId = "hostId" in params ? params.hostId : undefined;
-	const [openFolders, setOpenFolders] = useState<number[]>([]);
 
 	const { data: servers } = useQuery({
 		queryKey: ["servers", "getList"],
@@ -29,84 +58,140 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 		queryFn: () => client.folders.getList({}),
 	});
 
-	// Group servers by folder
-	const serversWithoutFolder = servers?.filter((s) => !s.folder) || [];
-	const folderGroups =
-		folders?.map((folder) => ({
-			folder,
-			servers: servers?.filter((s) => s.folder?.id === folder.id) || [],
-		})) || [];
+	const tree = useMemo<ServerTreeItem[]>(() => {
+		const rootServers =
+			servers
+				?.filter((server) => !server.folder)
+				.map((server) => ({
+					type: "server" as const,
+					id: server.id,
+					label: server.name,
+				})) ?? [];
 
-	const toggleFolder = (folderId: number) => {
-		setOpenFolders((prev) =>
-			prev.includes(folderId)
-				? prev.filter((id) => id !== folderId)
-				: [...prev, folderId],
-		);
-	};
+		const folderItems =
+			folders?.map((folder) => ({
+				type: "folder" as const,
+				id: folder.id,
+				label: folder.name,
+				color: folder.color ?? undefined,
+				items:
+					servers
+						?.filter((server) => server.folder?.id === folder.id)
+						.map((server) => ({
+							type: "server" as const,
+							id: server.id,
+							label: server.name,
+						})) ?? [],
+			})) ?? [];
+
+		return [...rootServers, ...folderItems];
+	}, [folders, servers]);
 
 	return (
-		<div className="w-64 space-y-4 border-r bg-background p-4">
-			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-lg">Hosts</h2>
-				<Button size="icon" variant="ghost" onClick={onAddHost}>
+		<Sidebar collapsible="none">
+			<SidebarHeader className="flex flex-row items-center justify-between border-b">
+				<h2 className="font-medium text-lg">Hosts</h2>
+				<Button size="icon-lg" variant="ghost" onClick={onAddHost}>
 					<Plus className="h-4 w-4" />
 				</Button>
-			</div>
-
-			<div className="space-y-1">
-				{/* Servers without folder */}
-				{serversWithoutFolder.map((server) => (
-					<Link
-						key={server.id}
-						to="/hosts/$hostId"
-						params={{ hostId: String(server.id) }}
-						className={cn(
-							"flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent",
-							hostId === String(server.id) && "bg-accent",
-						)}
-					/>
-				))}
-
-				{/* Folders with servers */}
-				{folderGroups.map(({ folder, servers }) => (
-					<Collapsible
-						key={folder.id}
-						open={openFolders.includes(folder.id)}
-						onOpenChange={() => toggleFolder(folder.id)}
-					>
-						<CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent">
-							<ChevronRight
-								className={cn(
-									"h-4 w-4 shrink-0 transition-transform",
-									openFolders.includes(folder.id) && "rotate-90",
-								)}
-							/>
-							<Folder
-								className="h-4 w-4 shrink-0"
-								style={{ color: folder.color || undefined }}
-							/>
-							<span className="truncate">{folder.name}</span>
-						</CollapsibleTrigger>
-						<CollapsibleContent className="mt-1 ml-6 space-y-1">
-							{servers.map((server) => (
-								<Link
-									key={server.id}
-									to="/hosts/$hostId"
-									params={{ hostId: String(server.id) }}
-									className={cn(
-										"flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent",
-										hostId === String(server.id) && "bg-accent",
-									)}
-								>
-									<Server className="h-4 w-4 shrink-0" />
-									<span className="truncate">{server.name}</span>
-								</Link>
+			</SidebarHeader>
+			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{tree.map((item) => (
+								<Tree
+									key={`${item.type}-${item.id}`}
+									item={item}
+									activeHostId={hostId}
+								/>
 							))}
-						</CollapsibleContent>
-					</Collapsible>
-				))}
-			</div>
-		</div>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+				<SidebarGroup className="mt-auto">
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<Link to=".">
+									<Button
+										variant="ghost"
+										size="sm"
+										className="w-full justify-start"
+									>
+										<Settings className="h-4 w-4" />
+										Settings
+									</Button>
+								</Link>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="w-full justify-start"
+									onClick={() => {
+										authClient.signOut({
+											fetchOptions: {
+												onSuccess: () => {
+													navigate({ to: "/login" });
+												},
+											},
+										});
+									}}
+								>
+									<LogOut className="h-4 w-4" />
+									Log out
+								</Button>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			</SidebarContent>
+			<SidebarRail />
+		</Sidebar>
+	);
+}
+
+function Tree({
+	item,
+	activeHostId,
+}: {
+	item: ServerTreeItem;
+	activeHostId?: string;
+}) {
+	if (item.type === "server") {
+		return (
+			<SidebarMenuButton asChild isActive={activeHostId === String(item.id)}>
+				<Link to="/hosts/$hostId" params={{ hostId: String(item.id) }}>
+					<Server />
+					<span>{item.label}</span>
+				</Link>
+			</SidebarMenuButton>
+		);
+	}
+
+	return (
+		<SidebarMenuItem>
+			<Collapsible className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90">
+				<CollapsibleTrigger asChild>
+					<SidebarMenuButton>
+						<ChevronRight className="transition-transform" />
+						<Folder style={{ color: item.color }} />
+						<span>{item.label}</span>
+					</SidebarMenuButton>
+				</CollapsibleTrigger>
+				<CollapsibleContent>
+					<SidebarMenuSub>
+						{item.items.map((subItem) => (
+							<Tree
+								key={`${subItem.type}-${subItem.id}`}
+								item={subItem}
+								activeHostId={activeHostId}
+							/>
+						))}
+					</SidebarMenuSub>
+				</CollapsibleContent>
+			</Collapsible>
+		</SidebarMenuItem>
 	);
 }

@@ -48,6 +48,17 @@ export function AppSidebar({
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
+				<SidebarGroup>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<Button variant="outline" size="sm" className="w-full">
+									Log out {user.name}
+								</Button>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
 			</SidebarContent>
 			<SidebarRail />
 		</Sidebar>

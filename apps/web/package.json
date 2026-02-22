@@ -9,6 +9,7 @@
 	},
 	"dependencies": {
 		"@codemirror/lang-yaml": "^6.1.2",
+		"@fontsource/maple-mono": "^5.2.6",
 		"@libsql/client": "catalog:",
 		"@orpc/client": "catalog:",
 		"@orpc/server": "catalog:",
