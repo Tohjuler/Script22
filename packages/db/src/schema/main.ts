@@ -1,5 +1,11 @@
 import { relations, sql } from "drizzle-orm";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+	blob,
+	index,
+	integer,
+	sqliteTable,
+	text,
+} from "drizzle-orm/sqlite-core";
 
 export const folder = sqliteTable("folder", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
@@ -21,13 +27,18 @@ export const folderRelations = relations(folder, ({ many }) => ({
 
 export const server = sqliteTable("server", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
+
 	name: text("name").notNull(),
+	folderId: integer("folder_id").references(() => folder.id),
+
 	username: text("username").notNull(),
 	host: text("host").notNull().unique(),
 	port: integer("port").notNull().default(22),
-	authType: text("auth_type").notNull(),
-	auth: text("auth"),
-	folderId: integer("folder_id").references(() => folder.id),
+
+	credentialId: integer("credential_id").references(() => sshCredential.id, {
+		onDelete: "set null",
+	}),
+
 	createdAt: integer("created_at", { mode: "timestamp_ms" })
 		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 		.notNull(),
@@ -42,7 +53,33 @@ export const serverRelations = relations(server, ({ one }) => ({
 		fields: [server.folderId],
 		references: [folder.id],
 	}),
+	credential: one(sshCredential, {
+		fields: [server.credentialId],
+		references: [sshCredential.id],
+	}),
 }));
+
+export type SshCredentialKind = "password" | "private_key";
+
+export const sshCredential = sqliteTable("ssh_credential", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+
+	// "password" | "private_key"
+	kind: text("kind").notNull().$type<SshCredentialKind>(),
+
+	// AES-256-GCM storage
+	ciphertext: blob("ciphertext", { mode: "buffer" }).notNull(),
+	iv: blob("iv", { mode: "buffer" }).notNull(),
+	authTag: blob("auth_tag", { mode: "buffer" }).notNull(),
+
+	createdAt: integer("created_at", { mode: "timestamp_ms" })
+		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+		.notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+		.$onUpdate(() => /* @__PURE__ */ new Date())
+		.notNull(),
+});
 
 export const job = sqliteTable("job", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
@@ -143,6 +180,7 @@ export const setting = sqliteTable("setting", {
 export const Tables = {
 	folder,
 	server,
+	sshCredential,
 	job,
 	jobVersion,
 	jobRun,

@@ -1,5 +1,6 @@
 import { db } from "@server-updator/db";
-import { Tables } from "@server-updator/db/schema/main";
+import { getDecryptedCredential } from "@server-updator/db/credentialUtils";
+import { type SshCredentialKind, Tables } from "@server-updator/db/schema/main";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";
@@ -56,8 +57,15 @@ export default async function runJob(
 			});
 	};
 
-	const auth = server.auth || ""; // TODO: Get default auth from settings if empty
+	const auth = server.credentialId
+		? await getDecryptedCredential(server.credentialId)
+		: {
+				kind: "password" as SshCredentialKind,
+				secret: "",
+			}; // TODO: Get default auth from settings if empty
+	if (!auth) throw new Error("Failed to retrieve SSH credentials");
 
+	try {
 	const conn = new Client();
 	conn
 		.on("ready", () => {
@@ -102,14 +110,24 @@ export default async function runJob(
 			host: server.host,
 			port: server.port,
 			username: server.username,
-			...(server.authType === "privateKey"
+			...(auth.kind === "private_key"
 				? {
-						privateKey: auth,
+						privateKey: auth.secret,
 					}
 				: {
-						password: auth,
+						password: auth.secret,
 					}),
 		});
+	} catch (err) {
+		console.error("Unexpected error during job execution", err);
+		await finish("failed", [
+			{
+				status: -1,
+				stdout: "",
+				stderr: `Unexpected error: ${err instanceof Error ? err.message : String(err)}`,
+			},
+		]);
+	}
 
 	return runId;
 }

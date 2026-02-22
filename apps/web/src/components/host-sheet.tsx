@@ -31,6 +31,9 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { client, queryClient } from "@/utils/orpc";
+import { Textarea } from "./ui/textarea";
+
+type SshCredentialKind = "password" | "private_key";
 
 interface HostSheetProps {
 	open: boolean;
@@ -70,8 +73,8 @@ export function HostSheet({
 		host: "",
 		port: 22,
 		username: "",
-		authType: "password" as "password" | "key",
-		auth: "",
+		authKind: "password" as SshCredentialKind,
+		authSecret: "",
 		folderId: null as number | null,
 	});
 
@@ -83,8 +86,8 @@ export function HostSheet({
 				host: host.host,
 				port: host.port,
 				username: host.username,
-				authType: host.authType as "password" | "key",
-				auth: "", // The server will NEVER return the auth details, so we leave this blank
+				authKind: host.credential?.kind || "password",
+				authSecret: "", // The server will NEVER return the auth details, so we leave this blank
 				folderId: host.folder?.id || null,
 			});
 		}
@@ -156,8 +159,8 @@ export function HostSheet({
 			host: "",
 			port: 22,
 			username: "",
-			authType: "password",
-			auth: "",
+			authKind: "password" as SshCredentialKind,
+			authSecret: "",
 			folderId: null,
 		});
 		setShowFolderForm(false);
@@ -245,11 +248,11 @@ export function HostSheet({
 					<Field>
 						<Label htmlFor="authType">Auth Type</Label>
 						<Select
-							value={formData.authType}
+							value={formData.authKind}
 							onValueChange={(value) =>
 								setFormData({
 									...formData,
-									authType: value as "password" | "key",
+									authKind: value as SshCredentialKind,
 								})
 							}
 						>
@@ -258,32 +261,39 @@ export function HostSheet({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="password">Password</SelectItem>
-								<SelectItem value="key">SSH Key</SelectItem>
+								<SelectItem value="private_key">SSH Key</SelectItem>
 							</SelectContent>
 						</Select>
 					</Field>
 
 					<Field>
 						<Label htmlFor="auth">
-							{formData.authType === "password" ? "Password" : "SSH Key"}
+							{formData.authKind === "password" ? "Password" : "SSH Key"}
 						</Label>
-						<Input
-							id="auth"
-							type="password" // Always use password type to hide the input, even for SSH keys
-							value={formData.auth}
-							onChange={(e) =>
-								setFormData({ ...formData, auth: e.target.value })
-							}
-							placeholder={
-								formData.authType === "password"
-									? "Enter password"
-									: "Enter SSH key"
-							}
-						/>
+						{formData.authKind === "password" ? (
+							<Input
+								id="auth"
+								type="password"
+								value={formData.authSecret}
+								onChange={(e) =>
+									setFormData({ ...formData, authSecret: e.target.value })
+								}
+								placeholder="Enter password"
+							/>
+						) : (
+							<Textarea
+								id="auth"
+								value={formData.authSecret}
+								onChange={(e) =>
+									setFormData({ ...formData, authSecret: e.target.value })
+								}
+								placeholder="Enter SSH Key"
+							/>
+						)}
 						{isEditing && (
 							<p className="text-muted-foreground text-sm">
 								Leave blank to keep existing{" "}
-								{formData.authType === "password" ? "password" : "SSH key"}
+								{formData.authKind === "password" ? "password" : "SSH key"}
 							</p>
 						)}
 					</Field>
