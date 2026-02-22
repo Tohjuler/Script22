@@ -35,7 +35,7 @@ export function HostStatistics({ runs }: HostStatisticsProps) {
 			stateCounts[run.state] = (stateCounts[run.state] || 0) + 1;
 
 			// Track state-specific counts
-			if (run.state === "success") successfulRuns++;
+			if (run.state === "succeeded") successfulRuns++;
 			if (run.state === "failed") failedRuns++;
 			if (run.state === "running") runningRuns++;
 			if (run.state === "pending") pendingRuns++;
@@ -85,7 +85,7 @@ export function HostStatistics({ runs }: HostStatisticsProps) {
 
 	const chartData = useMemo(() => {
 		const colors = {
-			success: "hsl(142, 76%, 36%)",
+			succeeded: "hsl(142, 76%, 36%)",
 			failed: "hsl(0, 84%, 60%)",
 			running: "hsl(47, 96%, 53%)",
 			pending: "hsl(215, 20%, 65%)",
@@ -115,7 +115,11 @@ export function HostStatistics({ runs }: HostStatisticsProps) {
 		if (minutes > 0) {
 			return `${minutes}m ${seconds % 60}s`;
 		}
-		return `${seconds}s`;
+		if (seconds > 0) {
+			return `${seconds}s`;
+		}
+
+		return `${ms.toFixed(0)}ms`;
 	};
 
 	const formatDate = (date: Date | null) => {
@@ -212,10 +216,7 @@ export function HostStatistics({ runs }: HostStatisticsProps) {
 						{/* Right section: Pie chart */}
 						{chartData.length > 0 && (
 							<div className="flex items-center justify-center">
-								<ChartContainer
-									config={chartConfig}
-									className="h-50 w-full"
-								>
+								<ChartContainer config={chartConfig} className="h-50 w-full">
 									<PieChart>
 										<ChartTooltip
 											cursor={false}

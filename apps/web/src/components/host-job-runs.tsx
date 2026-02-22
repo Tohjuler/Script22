@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { capitalizeFirstLetter } from "better-auth";
-import { Eye, RotateCcw } from "lucide-react";
+import { Eye, RefreshCcw, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RunDetailsSheet } from "@/components/run-details-sheet";
@@ -60,7 +60,11 @@ export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
 		if (minutes > 0) {
 			return `${minutes}m ${seconds % 60}s`;
 		}
-		return `${seconds}s`;
+		if (seconds > 0) {
+			return `${seconds}s`;
+		}
+
+		return `${ms}ms`;
 	};
 
 	const getDuration = (run: (typeof runs)[0]) => {
@@ -102,8 +106,17 @@ export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
 	return (
 		<>
 			<Card>
-				<CardHeader>
+				<CardHeader className="flex items-center justify-between">
 					<CardTitle>Job Runs</CardTitle>
+					<Button
+						size="icon"
+						variant="ghost"
+						onClick={() =>
+							queryClient.invalidateQueries({ queryKey: ["runs"] })
+						}
+					>
+						<RefreshCcw />
+					</Button>
 				</CardHeader>
 				<CardContent>
 					{runs.length === 0 ? (
