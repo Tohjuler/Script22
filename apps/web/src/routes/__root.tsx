@@ -1,18 +1,19 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
 	createRootRouteWithContext,
 	HeadContent,
 	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/utils/orpc";
+import { RouteNavigationPanel } from "../devtools";
 
 import appCss from "../index.css?url";
-import '@fontsource/maple-mono/index.css';
+import "@fontsource/maple-mono/index.css";
 export interface RouterAppContext {
 	orpc: typeof orpc;
 	queryClient: QueryClient;
@@ -54,8 +55,29 @@ function RootDocument() {
 					<Outlet />
 				</div>
 				<Toaster richColors />
-				<TanStackRouterDevtools position="bottom-right" />
-				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+				{/* <TanStackRouterDevtools position="bottom-right" />
+				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" /> */}
+				<TanStackDevtools
+					config={{
+						position: "bottom-right",
+					}}
+					plugins={[
+						{
+							name: "Tanstack Router",
+							render: <TanStackRouterDevtoolsPanel />,
+						},
+						{
+							id: "route-navigation",
+							name: "Route Navigation",
+							render: <RouteNavigationPanel />,
+						},
+						{
+							name: "TanStack Query",
+							render: <ReactQueryDevtoolsPanel />,
+							defaultOpen: true,
+						},
+					]}
+				/>
 				<Scripts />
 			</body>
 		</html>
