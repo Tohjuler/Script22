@@ -10,7 +10,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/utils/orpc";
-import { RouteNavigationPanel } from "../devtools";
 
 import appCss from "../index.css?url";
 import "@fontsource/maple-mono/index.css";
@@ -65,11 +64,6 @@ function RootDocument() {
 						{
 							name: "Tanstack Router",
 							render: <TanStackRouterDevtoolsPanel />,
-						},
-						{
-							id: "route-navigation",
-							name: "Route Navigation",
-							render: <RouteNavigationPanel />,
 						},
 						{
 							name: "TanStack Query",
