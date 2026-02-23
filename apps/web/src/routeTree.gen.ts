@@ -42,9 +42,9 @@ const PathlessLayoutHostsHostIdRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof PathlessLayoutIndexRoute
   '/login': typeof authLoginRoute
   '/setup': typeof authSetupRoute
-  '/': typeof PathlessLayoutIndexRoute
   '/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
 }
 export interface FileRoutesByTo {
@@ -63,7 +63,7 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/setup' | '/' | '/hosts/$hostId'
+  fullPaths: '/' | '/login' | '/setup' | '/hosts/$hostId'
   fileRoutesByTo: FileRoutesByTo
   to: '/login' | '/setup' | '/' | '/hosts/$hostId'
   id:
@@ -86,7 +86,7 @@ declare module '@tanstack/react-router' {
     '/_pathlessLayout': {
       id: '/_pathlessLayout'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof PathlessLayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
