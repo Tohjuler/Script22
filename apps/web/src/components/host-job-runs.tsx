@@ -14,7 +14,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { client, queryClient } from "@/utils/orpc";
 
 interface HostJobRunsProps {
@@ -49,24 +49,6 @@ export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
 		},
 	});
 
-	const formatTime = (ms: number) => {
-		const seconds = Math.floor(ms / 1000);
-		const minutes = Math.floor(seconds / 60);
-		const hours = Math.floor(minutes / 60);
-
-		if (hours > 0) {
-			return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-		}
-		if (minutes > 0) {
-			return `${minutes}m ${seconds % 60}s`;
-		}
-		if (seconds > 0) {
-			return `${seconds}s`;
-		}
-
-		return `${ms}ms`;
-	};
-
 	const getDuration = (run: (typeof runs)[0]) => {
 		if (!run.finishedAt) {
 			if (run.state === "running") {
@@ -82,7 +64,6 @@ export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
 
 	const getStateColor = (state: string) => {
 		switch (state.toLowerCase()) {
-			case "success":
 			case "succeeded":
 				return "text-green-600";
 			case "failed":
