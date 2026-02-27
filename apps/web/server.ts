@@ -14,7 +14,7 @@
  *
  * PORT (number)
  *   - Server port number
- *   - Default: 3000
+ *   - Default: 3001
  *
  * ASSET_PRELOAD_MAX_SIZE (number)
  *   - Maximum file size in bytes to preload into memory
@@ -66,7 +66,7 @@
 import path from 'node:path'
 
 // Configuration
-const SERVER_PORT = Number(process.env.PORT ?? 3000)
+const SERVER_PORT = Number(process.env.WEB_PORT ?? 3001)
 const CLIENT_DIRECTORY = './dist/client'
 const SERVER_ENTRY_POINT = './dist/server/server.js'
 
@@ -459,7 +459,7 @@ async function initializeStaticRoutes(
                 : 'preloaded'
           const route =
             file.route.length > 30
-              ? file.route.substring(0, 27) + '...'
+              ? `${file.route.substring(0, 27)}...`
               : file.route
           console.log(
             `${status.padEnd(12)} │ ${route.padEnd(30)} │ ${file.type.padEnd(28)} │ ${reason.padEnd(10)}`,
