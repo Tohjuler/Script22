@@ -33,9 +33,13 @@ export async function handleConfigUpdate(jobId: number, config: JobConfig) {
 		// Job already exists, remove it
 		cronJobs[jobId]?.stop();
 		delete cronJobs[jobId];
+		console.log(`Existing cron job for job ID ${jobId} stopped and removed`);
 	}
 
-	if (!config.schedule?.enabled) return;
+	if (!config.schedule?.enabled) {
+		console.log(`Cron job for job ID ${jobId} is disabled, skipping setup`);
+		return;
+	}
 
 	const cronJob = new CronJob(
 		config.schedule.cron,
@@ -44,9 +48,12 @@ export async function handleConfigUpdate(jobId: number, config: JobConfig) {
 		},
 		null,
 		true,
-        process.env.TZ || undefined,
+		process.env.TZ || undefined,
 	);
 	cronJobs[jobId] = cronJob;
+	console.log(
+		`Cron job for job ID ${jobId} has been set up with schedule: ${config.schedule.cron}`,
+	);
 }
 
 export function removeCronJob(jobId: number) {
@@ -54,6 +61,12 @@ export function removeCronJob(jobId: number) {
 		cronJobs[jobId]?.stop();
 		delete cronJobs[jobId];
 	}
+}
+
+export function getNextRunTime(jobId: number): Date | null {
+	const cronJob = cronJobs[jobId];
+	if (!cronJob) return null;
+	return cronJob.nextDate().toJSDate() || null;
 }
 
 async function handleRun(jobId: number, config: JobConfig) {

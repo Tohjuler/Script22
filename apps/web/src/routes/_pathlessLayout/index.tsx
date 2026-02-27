@@ -2,7 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, LabelList, Pie, PieChart, XAxis } from "recharts";
+import {
+	Bar,
+	BarChart,
+	CartesianGrid,
+	LabelList,
+	Pie,
+	PieChart,
+	XAxis,
+} from "recharts";
 import { toast } from "sonner";
 import { JobSheet } from "@/components/job-sheet";
 import {
@@ -23,6 +31,7 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
+import { formatDate } from "@/lib/utils";
 import { client } from "@/utils/orpc";
 
 export const Route = createFileRoute("/_pathlessLayout/")({
@@ -214,7 +223,12 @@ function DashboardPage() {
 									key={job.id}
 									className={`flex cursor-pointer items-center justify-between border-t p-2 hover:bg-accent ${i === 0 ? "border-t-0" : ""}`}
 								>
-									<span>{job.name}</span>
+									<div className="flex flex-col">
+										<span>{job.name}</span>
+										<span className="ml-2 text-muted-foreground text-xs">
+											Next run: {formatDate(job.nextRunTime)}
+										</span>
+									</div>
 									<div className="flex gap-2">
 										<Button size="sm" variant="outline">
 											Run

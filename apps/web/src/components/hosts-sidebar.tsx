@@ -1,13 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import {
-	ChevronRight,
-	Folder,
-	LogOut,
-	Plus,
-	Server,
-	Settings,
-} from "lucide-react";
+import { ChevronRight, Folder, LogOut, Plus, Server } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +12,9 @@ import {
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
+	SidebarGroupAction,
 	SidebarGroupContent,
+	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -90,13 +85,23 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 	return (
 		<Sidebar collapsible="none">
 			<SidebarHeader className="flex flex-row items-center justify-between border-b">
-				<h2 className="font-medium text-lg">Hosts</h2>
-				<Button size="icon-lg" variant="ghost" onClick={onAddHost}>
-					<Plus className="h-4 w-4" />
-				</Button>
+				<Link to="/">
+					<h2 className="font-medium text-lg">Home</h2>
+				</Link>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
+					<SidebarGroupLabel>Hosts</SidebarGroupLabel>
+					<SidebarGroupAction asChild>
+						<Button
+							size="icon-sm"
+							variant="ghost"
+							className="-mt-1.25"
+							onClick={onAddHost}
+						>
+							<Plus />
+						</Button>
+					</SidebarGroupAction>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{tree.map((item) => (
@@ -112,7 +117,7 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 				<SidebarGroup className="mt-auto">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							<SidebarMenuItem>
+							{/* <SidebarMenuItem> // TODO: Add settings page
 								<Link to=".">
 									<Button
 										variant="ghost"
@@ -123,7 +128,7 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 										Settings
 									</Button>
 								</Link>
-							</SidebarMenuItem>
+							</SidebarMenuItem> */}
 							<SidebarMenuItem>
 								<Button
 									variant="ghost"

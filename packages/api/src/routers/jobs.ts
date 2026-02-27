@@ -1,6 +1,7 @@
 import { createZodSchema, db } from "@server-updator/db";
 import { Tables } from "@server-updator/db/schema/main";
 import {
+	getNextRunTime,
 	handleConfigUpdate,
 	removeCronJob,
 } from "@server-updator/logic/cronJobs";
@@ -13,19 +14,28 @@ import { protectedProcedure as pp } from "../index";
 
 export const jobsRouter = {
 	getList: pp.handler(async () => {
-		const jobs = await db.query.job.findMany({
-			columns: {
-				id: true,
-				name: true,
-			},
-		});
+		const jobs = await db.query.job
+			.findMany({
+				columns: {
+					id: true,
+					name: true,
+					config: true,
+				},
+			})
+			.then((rows) =>
+				rows.map((job) => ({
+					...job,
+					nextRunTime: getNextRunTime(job.id),
+				})),
+			);
 		return jobs;
 	}),
 	getById: pp.input(z.object({ id: z.number() })).handler(async ({ input }) => {
 		const job = await db.query.job.findFirst({
 			where: (job, { eq }) => eq(job.id, input.id),
 		});
-		return job;
+		if (!job) throw new Error(`Job with id ${input.id} not found`);
+		return { ...job, nextRunTime: getNextRunTime(job.id) };
 	}),
 	create: pp
 		.input(
@@ -83,14 +93,16 @@ export const jobsRouter = {
 			});
 			if (!job) throw new Error(`Job with id ${input.id} not found`);
 
-			if (input.config) {
+			let updatedConfig: z.infer<typeof jobConfig> | undefined;
+			if (input.config && input.config !== job.config) {
 				// Validate config
-				const parsed = jobConfig.safeParse(JSON.parse(input.config));
+				const parsed = jobConfig.safeParse(YAML.parse(input.config));
 				if (!parsed.success) {
 					throw new Error(
 						`Invalid job config: ${z.prettifyError(parsed.error)}`,
 					);
 				}
+				updatedConfig = parsed.data;
 			}
 
 			const versionNumber =
@@ -115,11 +127,11 @@ export const jobsRouter = {
 			if (!updatedJob)
 				throw new Error(`Failed to update job with id ${input.id}`);
 
-			handleConfigUpdate(input.id, JSON.parse(updatedJob.config)).catch(
-				(err) => {
+			if (updatedConfig) {
+				handleConfigUpdate(input.id, updatedConfig).catch((err) => {
 					console.error(`Error updating cron job for job ID ${input.id}:`, err);
-				},
-			);
+				});
+			}
 
 			return updatedJob;
 		}),
