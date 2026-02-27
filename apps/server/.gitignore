@@ -20,7 +20,8 @@ dist/
 /.next/
 .vercel
 prisma/generated/
-
+index.js.map
+server.js
 
 # deps
 node_modules/
