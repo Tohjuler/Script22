@@ -1,7 +1,7 @@
 FROM oven/bun:1.3.10-alpine AS base
 WORKDIR /app
 
-COPY package.json bun.lock turbo.json tsconfig.json bunfig.toml biome.json bts.jsonc ./
+COPY package.json bun.lock turbo.json tsconfig.json biome.json bts.jsonc ./
 COPY apps ./apps
 COPY packages ./packages
 
