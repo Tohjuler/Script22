@@ -1,0 +1,19 @@
+services:
+  script22:
+    image: ghcr.io/tohjuler/script22:latest
+    restart: unless-stopped
+    environment:
+      VITE_SERVER_URL: http://localhost:3000
+
+      BETTER_AUTH_SECRET: # openssl rand -base64 32
+      BETTER_AUTH_URL: http://localhost:3000
+      CORS_ORIGIN: http://localhost:3001
+      DB_FILE_NAME: /app/db/db.sqlite
+      # Keep this secret, it is used to encrypt the credentials in the database. 
+      # If you change it, all credentials will be lost.
+      CREDENTIALS_MASTER_KEY_B64: # openssl rand -base64 32
+    ports:
+      - "3000:3000" # The API
+      - "3001:3001" # The UI
+    volumes:
+      - ./db:/app/db

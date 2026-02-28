@@ -1,82 +1,63 @@
-# script22
+<h1 align="center">Script22</h1>
+<p align="center">A simple web app to automatically run scripts on servers through SSH.</p>
+<br/>
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Start, Elysia, ORPC, and more.
+## Table of Contents
 
-## Features
+* [⚡General Info](#general-information)
+* [🧬Tech Tack](#tech-stack)
+* [🔨Setup](#setup)
+* [📝Contribution](#contribution)
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Start** - SSR framework with TanStack Router
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Elysia** - Type-safe, high-performance framework
-- **oRPC** - End-to-end type-safe APIs with OpenAPI integration
-- **Bun** - Runtime environment
-- **Drizzle** - TypeScript-first ORM
-- **SQLite/Turso** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **Turborepo** - Optimized monorepo build system
+## ⚡General Information
 
-## Getting Started
+This project was created because I needed a way to automatically update servers and was tired of the trouble of running other apps that are way too complicated for this simple purpose. So I created this app; it allows for adding servers, organizing them in folders, and running simple scripts defined in a config on them. The scripts run on a cron schedule and are fully configurable through the UI.
 
-First, install the dependencies:
+## 🧬Tech Stack
 
-```bash
-bun install
-```
+* [Bun](https://bun.sh) - Js Runtime
+* [Tanstack Start](https://tanstack.com/start/latest) - Web Framework
+* [ElysiaJs](https://elysiajs.com/) - API Framework
+* [oRPC](https://orpc.dev/) - API contract layer
+* [Drizzle ORM](https://orm.drizzle.team) - Database ORM, with SQLite as database
 
-## Database Setup
+## 🔨Setup
 
-This project uses SQLite with Drizzle ORM.
+### 💻Local Development
 
-1. Start the local SQLite database (optional):
+1. Clone the repo
+2. Install dependencies `bun i install`
+3. Create a .env in `apps/server` and `apps/web`, and fill it in.
+4. Start the server `bun run dev`
 
-```bash
-bun run db:local
-```
+### 🖥️Docker
 
-2. Update your `.env` file in the `apps/server` directory with the appropriate connection details if needed.
+Get the [.env.example](https://github.com/Tohjuler/Script22/blob/master/.env.example) file from the repo, edit it and then rename it to .env
 
-3. Apply the schema to your database:
+This example expects you use the default database setup from .env.example
+Run the image:
 
 ```bash
-bun run db:push
+docker run -d \
+--name Script22 \
+-p 3000:3000 \
+-p 3001:3001 \
+-v ./.env:/app/.env \
+-v ./db:/app/db/ \
+ghcr.io/tohjuler/script22:latest
 ```
 
-Then, run the development server:
+For at full stack deploy (app and consumet api)
+See [docker-compose.yml](https://github.com/Tohjuler/Script22/blob/master/docker-compose.yml)
 
-```bash
-bun run dev
-```
+Access the UI at `http://localhost:3001`
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+## 📝Contribution
 
-## Git Hooks and Formatting
+Contributions are always welcome!
+Contributions can be given in the form of:
 
-- Format and lint fix: `bun run check`
-
-## Project Structure
-
-```
-script22/
-├── apps/
-│   ├── web/         # Frontend application (React + TanStack Start)
-│   └── server/      # Backend API (Elysia, ORPC)
-├── packages/
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
-```
-
-## Available Scripts
-
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run dev:server`: Start only the server
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:studio`: Open database studio UI
-- `bun run db:local`: Start the local SQLite database
-- `bun run check`: Run Biome formatting and linting
+* Code (PR)
+* Documentation (PR)
+* Ideas (Issues)
+* Bug reports (Issues)
