@@ -14,7 +14,7 @@ FROM oven/bun:1.3.10-alpine AS app
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=build /app/apps/server/server.js ./server.js
+COPY --from=build /app/apps/server/dist/server.js ./server.js
 COPY --from=build /app/apps/web/dist ./web/dist
 COPY --from=build /app/apps/web/server.ts ./web/server.ts
 

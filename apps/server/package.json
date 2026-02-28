@@ -4,9 +4,9 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"check-types": "tsc -b",
-		"build": "bun build --target bun --external cpu-features ./src/index.ts --outfile server.js",
+		"build": "bun build --target bun --external cpu-features ./src/index.ts --outfile dist/server.js",
 		"dev": "bun run --hot src/index.ts",
-		"start": "bun run server.js"
+		"start": "bun run dist/server.js"
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.4.1",
