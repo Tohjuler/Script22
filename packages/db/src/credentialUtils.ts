@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { env } from "@script22/env/server";
 import { eq, sql } from "drizzle-orm";
 import { db } from ".";
 import { type SshCredentialKind, Tables } from "./schema";
@@ -10,7 +11,7 @@ export type EncryptedBlob = {
 };
 
 function getMasterKey(): Buffer {
-	const key = process.env.CREDENTIALS_MASTER_KEY_B64;
+	const key = env.CREDENTIALS_MASTER_KEY_B64;
 	if (!key)
 		throw new Error(
 			"Master key not set in environment variable CREDENTIALS_MASTER_KEY_B64",

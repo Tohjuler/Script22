@@ -8,6 +8,7 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { createContext } from "@script22/api/context";
 import { appRouter } from "@script22/api/routers/index";
 import { auth } from "@script22/auth";
+import { migrateDb } from "@script22/db";
 import { env } from "@script22/env/server";
 import { handleCronJobs } from "@script22/logic/cronJobs";
 import { Elysia } from "elysia";
@@ -65,11 +66,24 @@ const app = new Elysia()
 		return response ?? new Response("Not Found", { status: 404 });
 	})
 	.get("/", () => "OK")
-	.listen(3000, () => {
+	.listen(3000, async () => {
 		console.log("Server is running on http://localhost:3000");
 
+		console.log("Migrating database...");
+		await migrateDb(
+			env.NODE_ENV === "production"
+				? "./drizzle"
+				: "./node_modules/@script22/db/drizzle",
+		)
+			.then(() => {
+				console.log("Database migrated successfully");
+			})
+			.catch((err) => {
+				console.error("Error migrating database:", err);
+			});
+
 		console.log("Starting cron jobs...");
-		handleCronJobs().catch((err) => {
+		await handleCronJobs().catch((err) => {
 			console.error("Error starting cron jobs:", err);
 		});
 	});
