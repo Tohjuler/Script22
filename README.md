@@ -32,19 +32,29 @@ This project was created because I needed a way to automatically update servers 
 
 ### 🖥️Docker
 
-Get the [.env.example](https://github.com/Tohjuler/Script22/blob/main/.env.example) file from the repo, edit it and then rename it to .env
+Get the [.env.example](https://github.com/Tohjuler/Script22/blob/main/apps/server/.env.example) file from the repo, edit it and then rename it to .env
 
-This example expects you use the default database setup from .env.example
-Run the image:
+This example expects you use the default database setup from .env.example.
+
+Run the API image:
 
 ```bash
 docker run -d \
---name Script22 \
+--name Script22-api \
 -p 3000:3000 \
--p 3001:3001 \
 -v ./.env:/app/.env \
 -v ./db:/app/db/ \
-ghcr.io/tohjuler/script22:latest
+ghcr.io/tohjuler/script22-api:latest
+```
+
+Run the web image:
+
+```bash
+docker run -d \
+--name Script22-web \
+-p 3001:3001 \
+-e VITE_SERVER_URL=http://localhost:3000
+ghcr.io/tohjuler/script22-web:latest
 ```
 
 For at full stack deploy (app and consumet api)
