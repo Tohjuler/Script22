@@ -2,6 +2,7 @@ services:
   script22:
     image: ghcr.io/tohjuler/script22:latest
     restart: unless-stopped
+    container_name: script22
     environment:
       VITE_SERVER_URL: http://localhost:3000
 
@@ -16,4 +17,7 @@ services:
       - "3000:3000" # The API
       - "3001:3001" # The UI
     volumes:
-      - ./db:/app/db
+      - db:/app/db
+
+volumes:
+  db:

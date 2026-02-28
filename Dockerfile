@@ -20,4 +20,4 @@ COPY --from=build /app/apps/web/server.ts ./web/server.ts
 
 EXPOSE 3000
 EXPOSE 3001
-CMD ["sh", "-c", "bun run ./server.js & bun run ./web/server.ts"]
+CMD ["sh", "-c", "bun run ./server.js & bun run ./web/server.ts & wait"]
