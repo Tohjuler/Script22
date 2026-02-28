@@ -1,6 +1,6 @@
 import type { RouterClient } from "@orpc/server";
-import { db } from "@server-updator/db";
-import { Tables } from "@server-updator/db/schema/main";
+import { db } from "@script22/db";
+import { Tables } from "@script22/db/schema/main";
 import { protectedProcedure as pp } from "../index";
 import { foldersRouter } from "./folders";
 import { jobsRouter } from "./jobs";

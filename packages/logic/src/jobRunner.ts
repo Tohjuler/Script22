@@ -1,6 +1,6 @@
-import { db } from "@server-updator/db";
-import { getDecryptedCredential } from "@server-updator/db/credentialUtils";
-import { type SshCredentialKind, Tables } from "@server-updator/db/schema/main";
+import { db } from "@script22/db";
+import { getDecryptedCredential } from "@script22/db/credentialUtils";
+import { type SshCredentialKind, Tables } from "@script22/db/schema/main";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";

@@ -1,4 +1,4 @@
-import { env } from "@server-updator/env/server";
+import { env } from "@script22/env/server";
 import type { Table } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";

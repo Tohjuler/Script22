@@ -1,4 +1,4 @@
-import { db } from "@server-updator/db";
+import { db } from "@script22/db";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
 

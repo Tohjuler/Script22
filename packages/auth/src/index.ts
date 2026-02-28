@@ -1,7 +1,7 @@
-import { db } from "@server-updator/db";
-import * as schema from "@server-updator/db/schema/auth";
-import { AuthTables } from "@server-updator/db/schema/auth";
-import { env } from "@server-updator/env/server";
+import { db } from "@script22/db";
+import * as schema from "@script22/db/schema/auth";
+import { AuthTables } from "@script22/db/schema/auth";
+import { env } from "@script22/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";

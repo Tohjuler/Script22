@@ -13,18 +13,18 @@
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
-		"@server-updator/api": "workspace:*",
-		"@server-updator/logic": "workspace:*",
-		"@server-updator/auth": "workspace:*",
-		"@server-updator/db": "workspace:*",
-		"@server-updator/env": "workspace:*",
+		"@script22/api": "workspace:*",
+		"@script22/logic": "workspace:*",
+		"@script22/auth": "workspace:*",
+		"@script22/db": "workspace:*",
+		"@script22/env": "workspace:*",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
 		"elysia": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"@types/bun": "catalog:",
 		"typescript": "catalog:"
 	}

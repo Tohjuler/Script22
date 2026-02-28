@@ -3,15 +3,15 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "server-updator",
+      "name": "script22",
       "dependencies": {
-        "@server-updator/env": "workspace:*",
+        "@script22/env": "workspace:*",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.4",
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "@types/bun": "catalog:",
         "turbo": "^2.8.12",
         "typescript": "catalog:",
@@ -24,18 +24,18 @@
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@server-updator/api": "workspace:*",
-        "@server-updator/auth": "workspace:*",
-        "@server-updator/db": "workspace:*",
-        "@server-updator/env": "workspace:*",
-        "@server-updator/logic": "workspace:*",
+        "@script22/api": "workspace:*",
+        "@script22/auth": "workspace:*",
+        "@script22/db": "workspace:*",
+        "@script22/env": "workspace:*",
+        "@script22/logic": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "elysia": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
@@ -50,9 +50,9 @@
         "@orpc/server": "catalog:",
         "@orpc/tanstack-query": "^1.13.5",
         "@radix-ui/react-collapsible": "^1.1.12",
-        "@server-updator/api": "workspace:*",
-        "@server-updator/auth": "workspace:*",
-        "@server-updator/env": "workspace:*",
+        "@script22/api": "workspace:*",
+        "@script22/auth": "workspace:*",
+        "@script22/env": "workspace:*",
         "@tailwindcss/vite": "^4.2.0",
         "@tanstack/devtools-event-client": "^0.4.0",
         "@tanstack/devtools-vite": "^0.5.1",
@@ -85,7 +85,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "@tanstack/react-query-devtools": "^5.91.3",
         "@tanstack/react-router-devtools": "^1.162.4",
         "@testing-library/dom": "^10.4.0",
@@ -101,49 +101,49 @@
       },
     },
     "packages/api": {
-      "name": "@server-updator/api",
+      "name": "@script22/api",
       "dependencies": {
         "@orpc/client": "catalog:",
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@server-updator/auth": "workspace:*",
-        "@server-updator/db": "workspace:*",
-        "@server-updator/env": "workspace:*",
-        "@server-updator/logic": "workspace:*",
+        "@script22/auth": "workspace:*",
+        "@script22/db": "workspace:*",
+        "@script22/env": "workspace:*",
+        "@script22/logic": "workspace:*",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
         "elysia": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/auth": {
-      "name": "@server-updator/auth",
+      "name": "@script22/auth",
       "dependencies": {
-        "@server-updator/db": "workspace:*",
-        "@server-updator/env": "workspace:*",
+        "@script22/db": "workspace:*",
+        "@script22/env": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/config": {
-      "name": "@server-updator/config",
+      "name": "@script22/config",
       "version": "0.0.0",
     },
     "packages/db": {
-      "name": "@server-updator/db",
+      "name": "@script22/db",
       "dependencies": {
         "@libsql/client": "catalog:",
-        "@server-updator/env": "workspace:*",
+        "@script22/env": "workspace:*",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
         "drizzle-zod": "^0.8.3",
@@ -151,13 +151,13 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "drizzle-kit": "^0.31.9",
         "typescript": "catalog:",
       },
     },
     "packages/env": {
-      "name": "@server-updator/env",
+      "name": "@script22/env",
       "version": "0.0.0",
       "dependencies": {
         "@t3-oss/env-core": "^0.13.1",
@@ -165,16 +165,16 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
     "packages/logic": {
-      "name": "@server-updator/logic",
+      "name": "@script22/logic",
       "dependencies": {
-        "@server-updator/db": "workspace:*",
-        "@server-updator/env": "workspace:*",
+        "@script22/db": "workspace:*",
+        "@script22/env": "workspace:*",
         "@types/ssh2": "^1.15.5",
         "cron": "^4.4.0",
         "drizzle-orm": "catalog:",
@@ -182,7 +182,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@server-updator/config": "workspace:*",
+        "@script22/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -713,17 +713,17 @@
 
     "@sec-ant/readable-stream": ["@sec-ant/readable-stream@0.4.1", "", {}, "sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg=="],
 
-    "@server-updator/api": ["@server-updator/api@workspace:packages/api"],
+    "@script22/api": ["@script22/api@workspace:packages/api"],
 
-    "@server-updator/auth": ["@server-updator/auth@workspace:packages/auth"],
+    "@script22/auth": ["@script22/auth@workspace:packages/auth"],
 
-    "@server-updator/config": ["@server-updator/config@workspace:packages/config"],
+    "@script22/config": ["@script22/config@workspace:packages/config"],
 
-    "@server-updator/db": ["@server-updator/db@workspace:packages/db"],
+    "@script22/db": ["@script22/db@workspace:packages/db"],
 
-    "@server-updator/env": ["@server-updator/env@workspace:packages/env"],
+    "@script22/env": ["@script22/env@workspace:packages/env"],
 
-    "@server-updator/logic": ["@server-updator/logic@workspace:packages/logic"],
+    "@script22/logic": ["@script22/logic@workspace:packages/logic"],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.34.47", "", {}, "sha512-ZGIBQ+XDvO5JQku9wmwtabcVTHJsgSWAHYtVuM9pBNNR5E88v6Jcj/llpmsjivig5X8A8HHOb4/mbEKPS5EvAw=="],
 

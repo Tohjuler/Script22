@@ -1,9 +1,9 @@
-import { createZodSchema, db } from "@server-updator/db";
+import { createZodSchema, db } from "@script22/db";
 import {
 	createEncryptedCredential,
 	updateEncryptedCredential,
-} from "@server-updator/db/credentialUtils";
-import { Tables } from "@server-updator/db/schema/index";
+} from "@script22/db/credentialUtils";
+import { Tables } from "@script22/db/schema/index";
 import { eq } from "drizzle-orm";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";

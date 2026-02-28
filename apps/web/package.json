@@ -15,9 +15,9 @@
 		"@orpc/server": "catalog:",
 		"@orpc/tanstack-query": "^1.13.5",
 		"@radix-ui/react-collapsible": "^1.1.12",
-		"@server-updator/api": "workspace:*",
-		"@server-updator/auth": "workspace:*",
-		"@server-updator/env": "workspace:*",
+		"@script22/api": "workspace:*",
+		"@script22/auth": "workspace:*",
+		"@script22/env": "workspace:*",
 		"@tailwindcss/vite": "^4.2.0",
 		"@tanstack/devtools-event-client": "^0.4.0",
 		"@tanstack/devtools-vite": "^0.5.1",
@@ -50,7 +50,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"@tanstack/react-query-devtools": "^5.91.3",
 		"@tanstack/react-router-devtools": "^1.162.4",
 		"@testing-library/dom": "^10.4.0",

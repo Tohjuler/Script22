@@ -1,5 +1,5 @@
-import { db } from "@server-updator/db";
-import { AuthTables, Tables } from "@server-updator/db/schema/index";
+import { db } from "@script22/db";
+import { AuthTables, Tables } from "@script22/db/schema/index";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
 import { protectedProcedure as pp, publicProcedure } from "../index";

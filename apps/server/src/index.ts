@@ -5,11 +5,11 @@ import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
-import { createContext } from "@server-updator/api/context";
-import { appRouter } from "@server-updator/api/routers/index";
-import { auth } from "@server-updator/auth";
-import { env } from "@server-updator/env/server";
-import { handleCronJobs } from "@server-updator/logic/cronJobs";
+import { createContext } from "@script22/api/context";
+import { appRouter } from "@script22/api/routers/index";
+import { auth } from "@script22/auth";
+import { env } from "@script22/env/server";
+import { handleCronJobs } from "@script22/logic/cronJobs";
 import { Elysia } from "elysia";
 
 const rpcHandler = new RPCHandler(appRouter, {

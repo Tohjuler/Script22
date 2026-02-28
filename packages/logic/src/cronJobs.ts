@@ -1,4 +1,4 @@
-import { db } from "@server-updator/db";
+import { db } from "@script22/db";
 import { YAML } from "bun";
 import { CronJob } from "cron";
 import runJob from "./jobRunner";

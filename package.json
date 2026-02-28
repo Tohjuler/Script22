@@ -1,5 +1,5 @@
 {
-	"name": "server-updator",
+	"name": "script22",
 	"private": true,
 	"workspaces": {
 		"packages": [
@@ -30,21 +30,21 @@
 		"dev:native": "turbo -F native dev",
 		"dev:web": "turbo -F web dev",
 		"dev:server": "turbo -F server dev",
-		"db:push": "turbo -F @server-updator/db db:push",
-		"db:studio": "turbo -F @server-updator/db db:studio",
-		"db:generate": "turbo -F @server-updator/db db:generate",
-		"db:migrate": "turbo -F @server-updator/db db:migrate",
-		"db:local": "turbo -F @server-updator/db db:local",
+		"db:push": "turbo -F @script22/db db:push",
+		"db:studio": "turbo -F @script22/db db:studio",
+		"db:generate": "turbo -F @script22/db db:generate",
+		"db:migrate": "turbo -F @script22/db db:migrate",
+		"db:local": "turbo -F @script22/db db:local",
 		"format": "biome check --write ."
 	},
 	"dependencies": {
-		"@server-updator/env": "workspace:*",
+		"@script22/env": "workspace:*",
 		"dotenv": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.4",
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"@types/bun": "catalog:",
 		"turbo": "^2.8.12",
 		"typescript": "catalog:"

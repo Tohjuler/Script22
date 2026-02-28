@@ -1,4 +1,4 @@
-import { auth } from "@server-updator/auth";
+import { auth } from "@script22/auth";
 import type { Context as ElysiaContext } from "elysia";
 
 export type CreateContextOptions = {

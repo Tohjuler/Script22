@@ -1,3 +1,3 @@
 {
-	"extends": "@server-updator/config/tsconfig.base.json"
+	"extends": "@script22/config/tsconfig.base.json"
 }

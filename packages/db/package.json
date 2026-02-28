@@ -1,5 +1,5 @@
 {
-	"name": "@server-updator/db",
+	"name": "@script22/db",
 	"type": "module",
 	"exports": {
 		".": {
@@ -17,7 +17,7 @@
 	},
 	"dependencies": {
 		"@libsql/client": "catalog:",
-		"@server-updator/env": "workspace:*",
+		"@script22/env": "workspace:*",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:",
 		"drizzle-zod": "^0.8.3",
@@ -25,7 +25,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"drizzle-kit": "^0.31.9",
 		"typescript": "catalog:"
 	}

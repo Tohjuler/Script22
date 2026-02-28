@@ -1,5 +1,5 @@
 {
-	"name": "@server-updator/logic",
+	"name": "@script22/logic",
 	"type": "module",
 	"exports": {
 		".": {
@@ -11,8 +11,8 @@
 	},
 	"scripts": {},
 	"dependencies": {
-		"@server-updator/db": "workspace:*",
-		"@server-updator/env": "workspace:*",
+		"@script22/db": "workspace:*",
+		"@script22/env": "workspace:*",
 		"@types/ssh2": "^1.15.5",
 		"cron": "^4.4.0",
 		"drizzle-orm": "catalog:",
@@ -20,7 +20,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

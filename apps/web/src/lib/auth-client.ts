@@ -1,4 +1,4 @@
-import { env } from "@server-updator/env/web";
+import { env } from "@script22/env/web";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({

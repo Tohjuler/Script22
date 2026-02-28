@@ -1,5 +1,5 @@
 {
-	"name": "@server-updator/api",
+	"name": "@script22/api",
 	"type": "module",
 	"exports": {
 		".": {
@@ -15,17 +15,17 @@
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
-		"@server-updator/logic": "workspace:*",
-		"@server-updator/auth": "workspace:*",
-		"@server-updator/db": "workspace:*",
-		"@server-updator/env": "workspace:*",
+		"@script22/logic": "workspace:*",
+		"@script22/auth": "workspace:*",
+		"@script22/db": "workspace:*",
+		"@script22/env": "workspace:*",
 		"dotenv": "catalog:",
 		"zod": "catalog:",
 		"elysia": "catalog:",
 		"drizzle-orm": "catalog:"
 	},
 	"devDependencies": {
-		"@server-updator/config": "workspace:*",
+		"@script22/config": "workspace:*",
 		"typescript": "catalog:"
 	}
 }

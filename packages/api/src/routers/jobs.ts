@@ -1,12 +1,12 @@
-import { createZodSchema, db } from "@server-updator/db";
-import { Tables } from "@server-updator/db/schema/main";
+import { createZodSchema, db } from "@script22/db";
+import { Tables } from "@script22/db/schema/main";
 import {
 	getNextRunTime,
 	handleConfigUpdate,
 	removeCronJob,
-} from "@server-updator/logic/cronJobs";
-import runJob from "@server-updator/logic/jobRunner";
-import { jobConfig } from "@server-updator/logic/types";
+} from "@script22/logic/cronJobs";
+import runJob from "@script22/logic/jobRunner";
+import { jobConfig } from "@script22/logic/types";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import z from "zod/v4";

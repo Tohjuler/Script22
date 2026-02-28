@@ -1,5 +1,5 @@
-import { createZodSchema, db } from "@server-updator/db";
-import { Tables } from "@server-updator/db/schema/main";
+import { createZodSchema, db } from "@script22/db";
+import { Tables } from "@script22/db/schema/main";
 import { eq } from "drizzle-orm";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
