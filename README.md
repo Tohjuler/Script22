@@ -32,7 +32,7 @@ This project was created because I needed a way to automatically update servers 
 
 ### 🖥️Docker
 
-Get the [.env.example](https://github.com/Tohjuler/Script22/blob/master/.env.example) file from the repo, edit it and then rename it to .env
+Get the [.env.example](https://github.com/Tohjuler/Script22/blob/main/.env.example) file from the repo, edit it and then rename it to .env
 
 This example expects you use the default database setup from .env.example
 Run the image:
@@ -48,7 +48,7 @@ ghcr.io/tohjuler/script22:latest
 ```
 
 For at full stack deploy (app and consumet api)
-See [docker-compose.yml](https://github.com/Tohjuler/Script22/blob/master/docker-compose.yml)
+See [docker-compose.yml](https://github.com/Tohjuler/Script22/blob/main/docker-compose.yml)
 
 Access the UI at `http://localhost:3001`
 
