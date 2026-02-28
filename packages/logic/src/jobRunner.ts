@@ -66,58 +66,58 @@ export default async function runJob(
 	if (!auth) throw new Error("Failed to retrieve SSH credentials");
 
 	try {
-	const conn = new Client();
-	conn
-		.on("ready", () => {
-			console.debug("SSH Connection ready", {
-				serverId: serverId,
-				jobId: jobId,
-			});
-			let currentCommandIndex = 0;
-			const commandOutputs: ExecResult[] = [];
-			const callback = (result: ExecResult) => {
-				if (result.status !== 0 && !config.continueOnFailure) {
-					console.error("Command failed, aborting further execution", result);
-					finish("failed", commandOutputs.concat(result));
-					conn.end();
-					return;
-				}
-				console.debug("Command execution result", result);
-
-				if (currentCommandIndex + 1 < config.commands.length) {
-					currentCommandIndex++;
-					commandOutputs.push(result);
-					execCommand(conn, config.commands[currentCommandIndex], callback);
-				} else {
-					console.debug("All commands executed");
-					finish("succeeded", commandOutputs.concat(result));
-					conn.end();
-				}
-			};
-			execCommand(conn, config.commands[0] || "", callback);
-		})
-		.on("error", (err) => {
-			console.error("SSH Connection error", err);
-			finish("failed", [
-				{
-					status: -1,
-					stdout: "",
-					stderr: `SSH connection error: ${err.message}`,
-				},
-			]);
-		})
-		.connect({
-			host: server.host,
-			port: server.port,
-			username: server.username,
-			...(auth.kind === "private_key"
-				? {
-						privateKey: auth.secret,
+		const conn = new Client();
+		conn
+			.on("ready", () => {
+				console.debug("SSH Connection ready", {
+					serverId: serverId,
+					jobId: jobId,
+				});
+				let currentCommandIndex = 0;
+				const commandOutputs: ExecResult[] = [];
+				const callback = (result: ExecResult) => {
+					if (result.status !== 0 && !config.continueOnFailure) {
+						console.error("Command failed, aborting further execution", result);
+						finish("failed", commandOutputs.concat(result));
+						conn.end();
+						return;
 					}
-				: {
-						password: auth.secret,
-					}),
-		});
+					console.debug("Command execution result", result);
+
+					if (currentCommandIndex + 1 < config.commands.length) {
+						currentCommandIndex++;
+						commandOutputs.push(result);
+						execCommand(conn, config.commands[currentCommandIndex], callback);
+					} else {
+						console.debug("All commands executed");
+						finish("succeeded", commandOutputs.concat(result));
+						conn.end();
+					}
+				};
+				execCommand(conn, config.commands[0] || "", callback);
+			})
+			.on("error", (err) => {
+				console.error("SSH Connection error", err);
+				finish("failed", [
+					{
+						status: -1,
+						stdout: "",
+						stderr: `SSH connection error: ${err.message}`,
+					},
+				]);
+			})
+			.connect({
+				host: server.host,
+				port: server.port,
+				username: server.username,
+				...(auth.kind === "private_key"
+					? {
+							privateKey: auth.secret,
+						}
+					: {
+							password: auth.secret,
+						}),
+			});
 	} catch (err) {
 		console.error("Unexpected error during job execution", err);
 		await finish("failed", [

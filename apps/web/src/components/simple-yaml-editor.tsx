@@ -62,7 +62,9 @@ export function SimpleYamlEditor({
 					<AlertDescription className="font-mono text-xs">
 						{error.split("\n").map((s, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: No altertive here
-							<p key={i} className="mb-0!">{s}</p>
+							<p key={i} className="mb-0!">
+								{s}
+							</p>
 						))}
 					</AlertDescription>
 				</Alert>

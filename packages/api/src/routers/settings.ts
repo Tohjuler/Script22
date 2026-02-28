@@ -43,6 +43,6 @@ export const settingsRouter = {
 		}),
 
 	needSetup: publicProcedure.handler(async () => {
-		return await db.$count(AuthTables.user) === 0;
+		return (await db.$count(AuthTables.user)) === 0;
 	}),
 };

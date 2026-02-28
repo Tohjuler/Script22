@@ -43,7 +43,9 @@ export function encryptSecret(
 		cipher.setAAD(typeof aad === "string" ? Buffer.from(aad, "utf8") : aad);
 
 	const input =
-		typeof plaintext === "string" ? Buffer.from(normalizePem(plaintext), "utf8") : plaintext;
+		typeof plaintext === "string"
+			? Buffer.from(normalizePem(plaintext), "utf8")
+			: plaintext;
 
 	const ciphertext = Buffer.concat([cipher.update(input), cipher.final()]);
 	const authTag = cipher.getAuthTag();

@@ -35,7 +35,8 @@
 		"db:generate": "turbo -F @script22/db db:generate",
 		"db:migrate": "turbo -F @script22/db db:migrate",
 		"db:local": "turbo -F @script22/db db:local",
-		"format": "biome check --write ."
+		"format": "biome check --write .",
+		"lint": "biome check . --formatter-enabled=false"
 	},
 	"dependencies": {
 		"@script22/env": "workspace:*",

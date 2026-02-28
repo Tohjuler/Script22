@@ -68,7 +68,7 @@ const app = new Elysia()
 	.listen(3000, () => {
 		console.log("Server is running on http://localhost:3000");
 
-		console.log("Starting cron jobs...")
+		console.log("Starting cron jobs...");
 		handleCronJobs().catch((err) => {
 			console.error("Error starting cron jobs:", err);
 		});

@@ -61,14 +61,12 @@ export const runsRouter = {
 			});
 			return runs;
 		}),
-	getById: pp
-		.input(z.object({ id: z.number() }))
-		.handler(async ({ input }) => {
-			const run = await db.query.jobRun.findFirst({
-				where: (run, { eq }) => eq(run.id, input.id),
-			});
-			return run;
-		}),
+	getById: pp.input(z.object({ id: z.number() })).handler(async ({ input }) => {
+		const run = await db.query.jobRun.findFirst({
+			where: (run, { eq }) => eq(run.id, input.id),
+		});
+		return run;
+	}),
 	getOutputByRunId: pp
 		.input(z.object({ id: z.number() }))
 		.handler(async ({ input }) => {
