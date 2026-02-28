@@ -50,5 +50,8 @@
 		"turbo": "^2.8.12",
 		"typescript": "catalog:"
 	},
+	"overrides": {
+		"cpu-features": "npm:empty-package"
+	},
 	"packageManager": "bun@1.3.5"
 }
