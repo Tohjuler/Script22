@@ -20,6 +20,8 @@ services:
     image: ghcr.io/tohjuler/script22-web:latest
     restart: unless-stopped
     container_name: script22-web
+    environment:
+      - VITE_SERVER_URL=http://localhost:3000
     depends_on:
       - script22-api
     ports:

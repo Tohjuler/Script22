@@ -52,5 +52,14 @@ COPY --from=build-web /app/apps/web/server.ts ./apps/web/server.ts
 
 WORKDIR /app/apps/web
 
+ENV ASSET_DIR=./dist
+ENV APP_PREFIX=VITE_
+
+COPY apps/web/env.sh ./env.sh
+RUN chmod +x ./env.sh
+
+COPY apps/web/start.sh ./start.sh
+RUN chmod +x ./start.sh
+
 EXPOSE 3001
-CMD ["bun", "run", "./server.ts"]
+CMD ["./start.sh"]

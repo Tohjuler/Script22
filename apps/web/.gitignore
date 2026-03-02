@@ -31,6 +31,8 @@
 # Environment & local files
 .env*
 !.env.example
+# Is used for placeholder, for runtime env. 
+!.env.production 
 .DS_Store
 *.pem
 *.local
