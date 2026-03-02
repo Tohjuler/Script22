@@ -11,7 +11,8 @@ FROM base AS build-api
 RUN cd apps/server && bun run build
 
 FROM base AS build-web
-RUN cd apps/web && bun run build
+
+RUN cd apps/web && VITE_SERVER_URL=PREFIX_VITE_SERVER_URL bun run build
 
 FROM oven/bun:1.3.10-alpine AS web-deps
 WORKDIR /app
