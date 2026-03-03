@@ -78,6 +78,7 @@ export function HostSheet({
 		folderId: null as number | null,
 	});
 
+
 	// Update form when host data loads
 	useEffect(() => {
 		if (host) {
@@ -143,8 +144,11 @@ export function HostSheet({
 		onSuccess: (newFolder) => {
 			toast.success("Folder created successfully");
 			queryClient.invalidateQueries({ queryKey: ["folders"] });
+
 			// Auto-select the newly created folder
-			setFormData({ ...formData, folderId: newFolder[0].id });
+			if (newFolder.id) {
+				setFormData((prev) => ({ ...prev, folderId: newFolder.id }));
+			}
 			setShowFolderForm(false);
 			setFolderFormData({ name: "", color: "#3b82f6" });
 		},
@@ -305,7 +309,7 @@ export function HostSheet({
 							onValueChange={(value) => {
 								if (value === "__create__") {
 									setShowFolderForm(true);
-								} else {
+								} else if (value) {
 									setFormData({
 										...formData,
 										folderId: value === "__no_folder__" ? null : Number(value),

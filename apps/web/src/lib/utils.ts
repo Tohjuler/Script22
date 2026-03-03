@@ -16,7 +16,11 @@ export function formatTime(ms: number): string {
 	if (minutes > 0) {
 		return `${minutes}m ${seconds % 60}s`;
 	}
-	return `${seconds}s`;
+	if (seconds > 0) {
+		return `${seconds}s`;
+	}
+
+	return `${ms}ms`;
 }
 
 export function formatDate(date: Date | null): string {

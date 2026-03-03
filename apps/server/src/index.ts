@@ -73,7 +73,7 @@ const app = new Elysia()
 		await migrateDb(
 			env.NODE_ENV === "production"
 				? "./drizzle"
-				: "./node_modules/@script22/db/drizzle",
+				: "./node_modules/@script22/db/src/migrations",
 		)
 			.then(() => {
 				console.log("Database migrated successfully");

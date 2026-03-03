@@ -12,6 +12,13 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import { client, queryClient } from "@/utils/orpc";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "./ui/select";
 
 interface RunJobSheetProps {
 	open: boolean;
@@ -68,22 +75,23 @@ export function RunJobSheet({
 				<form onSubmit={handleSubmit} className="mt-3 space-y-4 px-3">
 					<Field>
 						<Label htmlFor="job">Job</Label>
-						<select
-							id="job"
-							value={selectedJobId || ""}
-							onChange={(e) =>
-								setSelectedJobId(e.target.value ? Number(e.target.value) : null)
+						<Select
+							value={String(selectedJobId || "")}
+							onValueChange={(value) =>
+								setSelectedJobId(value ? Number(value) : null)
 							}
-							className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-							required
 						>
-							<option value="">Select a job</option>
-							{jobs?.map((job) => (
-								<option key={job.id} value={job.id}>
-									{job.name}
-								</option>
-							))}
-						</select>
+							<SelectTrigger id="job">
+								<SelectValue placeholder="Select job" />
+							</SelectTrigger>
+							<SelectContent>
+								{jobs?.map((job) => (
+									<SelectItem key={job.id} value={job.id.toString()}>
+										{job.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</Field>
 
 					<div className="flex gap-2 pt-4">
