@@ -116,7 +116,14 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 	return (
 		<Sidebar collapsible="none">
 			<SidebarHeader className="flex flex-row items-center justify-between border-b">
-				<Link to="/">
+				<Link to="/" className="flex flex-row items-center">
+					<img
+						src="/favicon-48x48.png"
+						alt="Script22 Logo"
+						className="mr-2 h-6 w-6 rounded-sm"
+						width={24}
+						height={24}
+					/>
 					<h2 className="font-medium text-lg">Script22</h2>
 				</Link>
 			</SidebarHeader>
