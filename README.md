@@ -5,7 +5,7 @@
 ## Table of Contents
 
 * [⚡General Info](#general-information)
-* [🧬Tech Tack](#tech-stack)
+* [🧬Tech Stack](#tech-stack)
 * [🔨Setup](#setup)
 * [📝Contribution](#contribution)
 
