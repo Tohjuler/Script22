@@ -36,7 +36,7 @@ export const foldersRouter = {
 				.insert(Tables.folder)
 				.values(input)
 				.returning();
-			return newFolder[0]
+			return newFolder[0];
 		}),
 	update: pp
 		.input(

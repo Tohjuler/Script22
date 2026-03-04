@@ -78,7 +78,6 @@ export function HostSheet({
 		folderId: null as number | null,
 	});
 
-
 	// Update form when host data loads
 	useEffect(() => {
 		if (host) {
