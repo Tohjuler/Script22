@@ -13,6 +13,7 @@ import type { orpc } from "@/utils/orpc";
 
 import appCss from "../index.css?url";
 import "@fontsource/maple-mono/index.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
 export interface RouterAppContext {
 	orpc: typeof orpc;
 	queryClient: QueryClient;
@@ -74,7 +75,9 @@ function RootDocument() {
 			</head>
 			<body>
 				<div className="grid h-svh grid-rows-[auto_1fr]">
-					<Outlet />
+					<TooltipProvider>
+						<Outlet />
+					</TooltipProvider>
 				</div>
 				<Toaster richColors />
 				{/* <TanStackRouterDevtools position="bottom-right" />

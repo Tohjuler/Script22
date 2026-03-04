@@ -6,6 +6,7 @@ import {
 	LogOut,
 	Plus,
 	Server,
+	Settings,
 	Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -156,8 +157,8 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 				<SidebarGroup className="mt-auto">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{/* <SidebarMenuItem> // TODO: Add settings page
-								<Link to=".">
+							<SidebarMenuItem>
+								<Link to="/settings">
 									<Button
 										variant="ghost"
 										size="sm"
@@ -167,7 +168,7 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 										Settings
 									</Button>
 								</Link>
-							</SidebarMenuItem> */}
+							</SidebarMenuItem>
 							<SidebarMenuItem>
 								<Button
 									variant="ghost"
