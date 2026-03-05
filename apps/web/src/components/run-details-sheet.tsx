@@ -119,7 +119,7 @@ export function RunDetailsSheet({
 					{/* Command Outputs */}
 					<div>
 						<h3 className="mb-2 font-semibold text-sm">Command Logs</h3>
-						<div className="space-y-2">
+						<div className="max-h-[70vh] space-y-2 overflow-scroll">
 							{parsedOutput.length === 0 ? (
 								<p className="text-muted-foreground text-sm">
 									No output available
