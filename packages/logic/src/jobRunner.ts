@@ -1,9 +1,13 @@
 import { db } from "@script22/db";
-import { getDecryptedCredential } from "@script22/db/credentialUtils";
+import {
+	decryptSecret,
+	getDecryptedCredential,
+} from "@script22/db/credentialUtils";
 import { type SshCredentialKind, Tables } from "@script22/db/schema/main";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";
+import { getSetting } from "./settings";
 import { jobConfig } from "./types";
 
 type ExecResult = {
@@ -59,11 +63,29 @@ export default async function runJob(
 
 	const auth = server.credentialId
 		? await getDecryptedCredential(server.credentialId)
-		: {
-				kind: "password" as SshCredentialKind,
-				secret: "",
-			}; // TODO: Get default auth from settings if empty
-	if (!auth) throw new Error("Failed to retrieve SSH credentials");
+		: null;
+
+	const defaultAuth = !auth ? await getDefaultAuth() : null;
+
+	if (!auth && !defaultAuth?.password && !defaultAuth?.private_key) {
+		finish("failed", [
+			{
+				status: -1,
+				stdout: "",
+				stderr: "No authentication method available for this server",
+			},
+		]);
+		return runId;
+	}
+
+	const sshKey =
+		auth?.kind === "private_key"
+			? auth.secret
+			: defaultAuth?.private_key || undefined;
+	const sshPassword =
+		auth?.kind === "password"
+			? auth.secret
+			: defaultAuth?.password || undefined;
 
 	try {
 		const conn = new Client();
@@ -110,13 +132,9 @@ export default async function runJob(
 				host: server.host,
 				port: server.port,
 				username: server.username,
-				...(auth.kind === "private_key"
-					? {
-							privateKey: auth.secret,
-						}
-					: {
-							password: auth.secret,
-						}),
+
+				privateKey: sshKey,
+				password: sshPassword,
 			});
 	} catch (err) {
 		console.error("Unexpected error during job execution", err);
@@ -160,4 +178,44 @@ function execCommand(
 				stderr += data.toString();
 			});
 	});
+}
+
+async function getDefaultAuthByType(
+	kind: SshCredentialKind,
+): Promise<string | null> {
+	if (kind === "password") {
+		const credId = await getSetting("default-ssh-password");
+		if (!credId) return null;
+		const id = Number(credId.split(":")[1] || "-1");
+		if (!id || id === -1) return null;
+
+		const res = await db.query.sshCredential.findFirst({
+			where: (cred, { eq }) => eq(cred.id, id),
+		});
+		if (!res) return null;
+
+		return decryptSecret(res, "setting:default-ssh-password").toString("utf8");
+	}
+
+	// SSH Key
+	// ---
+
+	const credId = await getSetting("default-ssh-key");
+	if (!credId) return null;
+	const id = Number(credId.split(":")[1] || "-1");
+	if (!id || id === -1) return null;
+
+	const res = await db.query.sshCredential.findFirst({
+		where: (cred, { eq }) => eq(cred.id, id),
+	});
+	if (!res) return null;
+
+	return decryptSecret(res, "setting:default-ssh-key").toString("utf8");
+}
+
+async function getDefaultAuth() {
+	return {
+		password: await getDefaultAuthByType("password"),
+		private_key: await getDefaultAuthByType("private_key"),
+	};
 }

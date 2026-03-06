@@ -54,18 +54,25 @@ export const serversRouter = {
 				})
 				.extend({
 					authKind: z.enum(["password", "private_key"]),
-					authSecret: z.string(),
+					authSecret: z.string().optional(),
 				}),
 		)
 		.handler(async ({ input }) => {
 			const { authKind, authSecret, ...serverData } = input;
 
-			const credential = await createEncryptedCredential(authKind, authSecret);
-			if (!credential) throw new Error("Failed to create credential");
+			let credentialId: number | null = null;
+			if (authKind && authSecret) {
+				const credential = await createEncryptedCredential(
+					authKind,
+					authSecret,
+				);
+				if (!credential) throw new Error("Failed to create credential");
+				credentialId = credential.id;
+			}
 
 			const newServer = await db
 				.insert(Tables.server)
-				.values({ ...serverData, credentialId: credential.id })
+				.values({ ...serverData, credentialId: credentialId })
 				.returning();
 
 			if (!newServer[0]) throw new Error("Failed to create server");

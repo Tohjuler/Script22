@@ -283,7 +283,7 @@ export function HostSheet({
 								onChange={(e) =>
 									setFormData({ ...formData, authSecret: e.target.value })
 								}
-								placeholder="Enter password"
+								placeholder="Enter password or leave blank to use default"
 								autoComplete="off"
 							/>
 						) : (
@@ -293,7 +293,7 @@ export function HostSheet({
 								onChange={(e) =>
 									setFormData({ ...formData, authSecret: e.target.value })
 								}
-								placeholder="Enter SSH Key"
+								placeholder="Enter SSH Key or leave blank to use default"
 								autoComplete="off"
 							/>
 						)}
