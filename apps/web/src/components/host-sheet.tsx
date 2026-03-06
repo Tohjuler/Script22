@@ -205,6 +205,7 @@ export function HostSheet({
 								setFormData({ ...formData, name: e.target.value })
 							}
 							placeholder="Production Server"
+							autoComplete="off"
 							required
 						/>
 					</Field>
@@ -244,6 +245,7 @@ export function HostSheet({
 								setFormData({ ...formData, username: e.target.value })
 							}
 							placeholder="root"
+							autoComplete="off"
 							required
 						/>
 					</Field>
@@ -282,6 +284,7 @@ export function HostSheet({
 									setFormData({ ...formData, authSecret: e.target.value })
 								}
 								placeholder="Enter password or leave blank to use default"
+								autoComplete="off"
 							/>
 						) : (
 							<Textarea
@@ -291,6 +294,7 @@ export function HostSheet({
 									setFormData({ ...formData, authSecret: e.target.value })
 								}
 								placeholder="Enter SSH Key or leave blank to use default"
+								autoComplete="off"
 							/>
 						)}
 						{isEditing && (
@@ -346,6 +350,7 @@ export function HostSheet({
 										})
 									}
 									placeholder="Production"
+									autoComplete="off"
 									autoFocus
 								/>
 							</Field>
