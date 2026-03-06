@@ -82,11 +82,11 @@ const app = new Elysia()
 				logger.info("Database migrated successfully");
 			})
 			.catch((err) => {
-				logger.error("Error migrating database:", err);
+				logger.error(err, "Error migrating database:");
 			});
 
 		logger.info("Starting cron jobs...");
 		await handleCronJobs().catch((err) => {
-			logger.error("Error starting cron jobs:", err);
+			logger.error(err, "Error starting cron jobs:");
 		});
 	});

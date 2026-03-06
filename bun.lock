@@ -127,6 +127,7 @@
       "dependencies": {
         "@script22/db": "workspace:*",
         "@script22/env": "workspace:*",
+        "@script22/logic": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "zod": "catalog:",

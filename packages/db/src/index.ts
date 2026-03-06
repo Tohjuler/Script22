@@ -14,7 +14,6 @@ export const db = drizzle({
 });
 
 export async function migrateDb(path: string) {
-	console.log("Using path for migrations:", path);
 	migrate(db, {
 		migrationsFolder: path,
 	});

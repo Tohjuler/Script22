@@ -1,6 +1,7 @@
 import { createZodSchema, db } from "@script22/db";
 import { encryptSecret } from "@script22/db/credentialUtils";
 import { AuthTables, Tables } from "@script22/db/schema/index";
+import { logger } from "@script22/logic/logger";
 import { eq } from "drizzle-orm";
 import { z } from "zod/v4";
 import { protectedProcedure as pp, publicProcedure } from "../index";
@@ -97,7 +98,12 @@ export const settingsRouter = {
 						);
 					return setting;
 				}
-				console.debug("Handling credential setting update for key:", input.key);
+				logger.debug(
+					{
+						key: input.key,
+					},
+					"Handling credential setting update for key:",
+				);
 				return await handleCredentialSetting(
 					input.key,
 					input.value,
