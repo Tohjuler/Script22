@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/correctness/noUnusedVariables: It's fine */
+import { wrap } from "@bogeychan/elysia-logger";
 import { cors } from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
@@ -11,12 +12,13 @@ import { auth } from "@script22/auth";
 import { migrateDb } from "@script22/db";
 import { env } from "@script22/env/server";
 import { handleCronJobs } from "@script22/logic/cronJobs";
+import { logger } from "@script22/logic/logger";
 import { Elysia } from "elysia";
 
 const rpcHandler = new RPCHandler(appRouter, {
 	interceptors: [
 		onError((error) => {
-			console.error(error);
+			logger.error(error);
 		}),
 	],
 });
@@ -28,7 +30,7 @@ const apiHandler = new OpenAPIHandler(appRouter, {
 	],
 	interceptors: [
 		onError((error) => {
-			console.error(error);
+			logger.error(error);
 		}),
 	],
 });
@@ -36,6 +38,7 @@ const apiHandler = new OpenAPIHandler(appRouter, {
 // biome-ignore lint/suspicious/noTsIgnore: This is needed
 // @ts-ignore
 const app = new Elysia()
+	.use(wrap(logger))
 	.use(
 		cors({
 			origin: env.CORS_ORIGIN,
@@ -67,23 +70,23 @@ const app = new Elysia()
 	})
 	.get("/", () => "OK")
 	.listen(3000, async () => {
-		console.log("Server is running on http://localhost:3000");
+		logger.info("Server is running on http://localhost:3000");
 
-		console.log("Migrating database...");
+		logger.info("Migrating database...");
 		await migrateDb(
 			env.NODE_ENV === "production"
 				? "./drizzle"
 				: "./node_modules/@script22/db/src/migrations",
 		)
 			.then(() => {
-				console.log("Database migrated successfully");
+				logger.info("Database migrated successfully");
 			})
 			.catch((err) => {
-				console.error("Error migrating database:", err);
+				logger.error("Error migrating database:", err);
 			});
 
-		console.log("Starting cron jobs...");
+		logger.info("Starting cron jobs...");
 		await handleCronJobs().catch((err) => {
-			console.error("Error starting cron jobs:", err);
+			logger.error("Error starting cron jobs:", err);
 		});
 	});
