@@ -1,4 +1,4 @@
-import { db } from "@script22/db";
+import { createZodSchema, db } from "@script22/db";
 import { encryptSecret } from "@script22/db/credentialUtils";
 import { AuthTables, Tables } from "@script22/db/schema/index";
 import { eq } from "drizzle-orm";
@@ -7,7 +7,7 @@ import { protectedProcedure as pp, publicProcedure } from "../index";
 
 const PROTECTED_SETTINGS = ["default-ssh-key", "default-ssh-password"];
 
-async function handleCredientialSetting(
+async function handleCredentialSetting(
 	key: string,
 	value: string,
 	setting: typeof Tables.setting.$inferSelect | undefined, // Value format: "credential:<id>"
@@ -79,6 +79,7 @@ export const settingsRouter = {
 				value: z.string(),
 			}),
 		)
+		.output(createZodSchema(Tables.setting).select)
 		.handler(async ({ input }) => {
 			const setting = await db.query.setting.findFirst({
 				where: (setting, { eq }) => eq(setting.key, input.key),
@@ -88,8 +89,16 @@ export const settingsRouter = {
 				input.key === "default-ssh-key" ||
 				input.key === "default-ssh-password"
 			) {
-				console.log("Handling credential setting update for key:", input.key);
-				return await handleCredientialSetting(
+				if (input.value === "") {
+					// Ignore the set call, this is to allow for preserving the existing credential.
+					if (!setting)
+						throw new Error(
+							"Cannot preserve credential for non-existing setting",
+						);
+					return setting;
+				}
+				console.debug("Handling credential setting update for key:", input.key);
+				return await handleCredentialSetting(
 					input.key,
 					input.value,
 					setting,
@@ -101,16 +110,20 @@ export const settingsRouter = {
 				const newSetting = await db
 					.insert(Tables.setting)
 					.values({ key: input.key, value: input.value })
-					.returning();
-				return newSetting[0];
+					.returning()
+					.then((res) => res[0]);
+				if (!newSetting) throw new Error("Failed to insert new setting");
+				return newSetting;
 			}
 
 			const updatedSetting = await db
 				.update(Tables.setting)
 				.set({ value: input.value })
 				.where(eq(Tables.setting.key, input.key))
-				.returning();
-			return updatedSetting[0];
+				.returning()
+				.then((res) => res[0]);
+			if (!updatedSetting) throw new Error("Failed to update setting");
+			return updatedSetting;
 		}),
 
 	needSetup: publicProcedure.handler(async () => {

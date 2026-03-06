@@ -54,7 +54,7 @@ export const serversRouter = {
 				})
 				.extend({
 					authKind: z.enum(["password", "private_key"]),
-					authSecret: z.string(),
+					authSecret: z.string().optional(),
 				}),
 		)
 		.handler(async ({ input }) => {

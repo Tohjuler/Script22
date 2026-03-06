@@ -1,7 +1,4 @@
-import type {
-	Keys,
-	SettingTypes,
-} from "@/lib/settings";
+import type { Keys, SettingTypes } from "@/lib/settings";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
 import { Textarea } from "./ui/textarea";
@@ -32,7 +29,9 @@ export default function SettingsSetter({
 		case "string": {
 			return (
 				<Input
-                placeholder={value === "HIDDEN" ? "Leave blank to keep current value" : undefined}
+					placeholder={
+						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+					}
 					defaultValue={value === "HIDDEN" ? "" : value}
 					id={key}
 					onBlur={(e) => onChange(e.target.value)}
@@ -47,7 +46,9 @@ export default function SettingsSetter({
 		case "full-string": {
 			return (
 				<Textarea
-                placeholder={value === "HIDDEN" ? "Leave blank to keep current value" : undefined}
+					placeholder={
+						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+					}
 					defaultValue={value === "HIDDEN" ? "" : value}
 					id={key}
 					onBlur={(e) => onChange(e.target.value)}
@@ -61,7 +62,9 @@ export default function SettingsSetter({
 		case "number": {
 			return (
 				<Input
-                    placeholder={value === "HIDDEN" ? "Leave blank to keep current value" : undefined}
+					placeholder={
+						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+					}
 					defaultValue={value === "HIDDEN" ? "" : Number(value)}
 					id={key}
 					onBlur={(e) => onChange(e.target.value)}

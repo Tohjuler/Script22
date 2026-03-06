@@ -67,7 +67,7 @@ export default async function runJob(
 
 	const defaultAuth = !auth ? await getDefaultAuth() : null;
 
-	if (!auth && !defaultAuth) {
+	if (!auth && !defaultAuth?.password && !defaultAuth?.private_key) {
 		finish("failed", [
 			{
 				status: -1,
@@ -79,9 +79,13 @@ export default async function runJob(
 	}
 
 	const sshKey =
-		auth?.kind === "private_key" ? auth.secret : (defaultAuth?.private_key || undefined);
+		auth?.kind === "private_key"
+			? auth.secret
+			: defaultAuth?.private_key || undefined;
 	const sshPassword =
-		auth?.kind === "password" ? auth.secret : (defaultAuth?.password || undefined);
+		auth?.kind === "password"
+			? auth.secret
+			: defaultAuth?.password || undefined;
 
 	try {
 		const conn = new Client();
@@ -190,9 +194,7 @@ async function getDefaultAuthByType(
 		});
 		if (!res) return null;
 
-		return decryptSecret(res, "setting:default-ssh-password").toString(
-			"utf8",
-		);
+		return decryptSecret(res, "setting:default-ssh-password").toString("utf8");
 	}
 
 	// SSH Key
