@@ -1,57 +1,10 @@
 import { createZodSchema, db } from "@script22/db";
-import { encryptSecret } from "@script22/db/credentialUtils";
 import { AuthTables, Tables } from "@script22/db/schema/index";
-import { logger } from "@script22/logic/logger";
-import { eq } from "drizzle-orm";
+import { setSetting } from "@script22/logic/settings";
 import { z } from "zod/v4";
 import { protectedProcedure as pp, publicProcedure } from "../index";
 
 const PROTECTED_SETTINGS = ["default-ssh-key", "default-ssh-password"];
-
-async function handleCredentialSetting(
-	key: string,
-	value: string,
-	setting: typeof Tables.setting.$inferSelect | undefined, // Value format: "credential:<id>"
-	kind: (typeof Tables.sshCredential.$inferInsert)["kind"],
-): Promise<typeof Tables.setting.$inferSelect> {
-	// Return format: "credential:<id>"
-	const { iv, ciphertext, authTag } = encryptSecret(value, `setting:${key}`);
-
-	if (setting?.value) {
-		// Update existing credential
-		await db
-			.update(Tables.sshCredential)
-			.set({ iv, ciphertext, authTag })
-			.where(
-				eq(
-					Tables.sshCredential.id,
-					Number.parseInt(setting.value.split(":")[1] ?? "-1", 10),
-				),
-			);
-		return setting;
-	}
-
-	const id = await db
-		.insert(Tables.sshCredential)
-		.values({
-			kind: kind,
-			iv,
-			ciphertext,
-			authTag,
-		})
-		.returning({ id: Tables.sshCredential.id })
-		.then((res) => res[0]?.id);
-	if (id === undefined) throw new Error("Failed to insert SSH key credential");
-
-	const newSetting = await db
-		.insert(Tables.setting)
-		.values({ key: key, value: `credential:${id.toString()}` })
-		.returning()
-		.then((res) => res[0]);
-	if (!newSetting)
-		throw new Error("Failed to insert setting for SSH key credential");
-	return newSetting;
-}
 
 export const settingsRouter = {
 	getAll: pp.handler(async () => {
@@ -82,54 +35,7 @@ export const settingsRouter = {
 		)
 		.output(createZodSchema(Tables.setting).select)
 		.handler(async ({ input }) => {
-			const setting = await db.query.setting.findFirst({
-				where: (setting, { eq }) => eq(setting.key, input.key),
-			});
-
-			if (
-				input.key === "default-ssh-key" ||
-				input.key === "default-ssh-password"
-			) {
-				if (input.value === "") {
-					// Ignore the set call, this is to allow for preserving the existing credential.
-					if (!setting)
-						throw new Error(
-							"Cannot preserve credential for non-existing setting",
-						);
-					return setting;
-				}
-				logger.debug(
-					{
-						key: input.key,
-					},
-					"Handling credential setting update for key:",
-				);
-				return await handleCredentialSetting(
-					input.key,
-					input.value,
-					setting,
-					input.key === "default-ssh-key" ? "private_key" : "password",
-				);
-			}
-
-			if (!setting) {
-				const newSetting = await db
-					.insert(Tables.setting)
-					.values({ key: input.key, value: input.value })
-					.returning()
-					.then((res) => res[0]);
-				if (!newSetting) throw new Error("Failed to insert new setting");
-				return newSetting;
-			}
-
-			const updatedSetting = await db
-				.update(Tables.setting)
-				.set({ value: input.value })
-				.where(eq(Tables.setting.key, input.key))
-				.returning()
-				.then((res) => res[0]);
-			if (!updatedSetting) throw new Error("Failed to update setting");
-			return updatedSetting;
+			return await setSetting(input.key, input.value);
 		}),
 
 	needSetup: publicProcedure.handler(async () => {
