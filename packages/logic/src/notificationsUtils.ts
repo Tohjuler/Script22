@@ -23,20 +23,34 @@ export async function sendNotification(title: string, message: string) {
 		headers: {
 			"Content-Type": "application/json",
 		},
-	}).catch((err) => {
-		logger.error(err, "Failed to send notifitaion to %s", notifyUrl);
-	});
+	})
+		.then((res) => {
+			if (res.ok) return;
+
+			logger.error(
+				"Failed to send notification to %s, status: %d, response: %s",
+				notifyUrl,
+				res.status,
+				res.statusText,
+			);
+		})
+		.catch((err) => {
+			logger.error(err, "Failed to send notification to %s", notifyUrl);
+		});
 }
 
 export async function sendSuccessNotification(
 	serverName: string,
 	jobName: string,
-    details: {
-        exitCode: number;
-        time: number;
-    }
+	details: {
+		exitCode: number;
+		time: number;
+	},
 ) {
-	const notifyOnSuccess = await getSetting("apprise-notify-on-success", "false");
+	const notifyOnSuccess = await getSetting(
+		"apprise-notify-on-success",
+		"false",
+	);
 	if (notifyOnSuccess !== "true") return;
 
 	await sendNotification(
@@ -46,12 +60,12 @@ export async function sendSuccessNotification(
 }
 
 export async function sendFailureNotification(
-    serverName: string,
-    jobName: string,
-    details: {
-        exitCode: number;
-        time: number;
-    }
+	serverName: string,
+	jobName: string,
+	details: {
+		exitCode: number;
+		time: number;
+	},
 ) {
 	const notifyOnFailure = await getSetting("apprise-notify-on-failure", "true");
 	if (notifyOnFailure !== "true") return;
@@ -60,6 +74,28 @@ export async function sendFailureNotification(
 		`Failed job on ${serverName}`,
 		`Job ${jobName} failed on server ${serverName} with exit code ${details.exitCode} in ${formatTime(details.time)}`,
 	);
+}
+
+export async function sendJobNotification(
+	state: "failed" | "succeeded",
+	details: {
+		serverName: string;
+		jobName: string;
+		exitCode: number;
+		time: number;
+	},
+) {
+	if (state === "failed") {
+		await sendFailureNotification(details.serverName, details.jobName, {
+			exitCode: details.exitCode,
+			time: details.time,
+		});
+	} else {
+		await sendSuccessNotification(details.serverName, details.jobName, {
+			exitCode: details.exitCode,
+			time: details.time,
+		});
+	}
 }
 
 function formatTime(ms: number): string {

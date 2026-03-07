@@ -8,10 +8,7 @@ import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";
 import { logger } from "./logger";
-import {
-	sendFailureNotification,
-	sendSuccessNotification,
-} from "./notificationsUtils";
+import { sendJobNotification } from "./notificationsUtils";
 import { getSetting } from "./settings";
 import { jobConfig } from "./types";
 
@@ -61,17 +58,19 @@ export default async function runJob(
 		const timeTaken = finishedAt.getTime() - run.createdAt.getTime();
 
 		const statusCode = output[output.length - 1]?.status ?? -1;
-		
-		if (state === "failed")
-			await sendFailureNotification(server.name, job.name, {
-				exitCode: statusCode,
-				time: timeTaken,
-			});
-		else
-			await sendSuccessNotification(server.name, job.name, {
-				exitCode: statusCode,
-				time: timeTaken,
-			});
+
+		sendJobNotification(state, {
+			serverName: server.name,
+			jobName: job.name,
+			exitCode: statusCode,
+			time: timeTaken,
+		}).catch((err) => {
+			logger.error(
+				err,
+				"Failed to send job completion notification for run %d",
+				runId,
+			);
+		});
 
 		await db
 			.update(Tables.jobRun)
