@@ -11,7 +11,7 @@ export default function SettingsSetter({
 }: {
 	settingKey: Keys;
 	value: string;
-	setting: { type: SettingTypes; password?: boolean };
+	setting: { type: SettingTypes; password?: boolean, placeholder?: string };
 	onChange: (value: string) => void;
 }) {
 	switch (setting.type as SettingTypes) {
@@ -30,7 +30,7 @@ export default function SettingsSetter({
 			return (
 				<Input
 					placeholder={
-						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+						value === "HIDDEN" ? "Leave blank to keep current value" : setting.placeholder ?? undefined
 					}
 					defaultValue={value === "HIDDEN" ? "" : value}
 					id={key}
@@ -47,7 +47,7 @@ export default function SettingsSetter({
 			return (
 				<Textarea
 					placeholder={
-						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+						value === "HIDDEN" ? "Leave blank to keep current value" : setting.placeholder ?? undefined
 					}
 					defaultValue={value === "HIDDEN" ? "" : value}
 					id={key}
@@ -63,7 +63,7 @@ export default function SettingsSetter({
 			return (
 				<Input
 					placeholder={
-						value === "HIDDEN" ? "Leave blank to keep current value" : undefined
+						value === "HIDDEN" ? "Leave blank to keep current value" : setting.placeholder ?? undefined
 					}
 					defaultValue={value === "HIDDEN" ? "" : Number(value)}
 					id={key}
