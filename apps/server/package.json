@@ -9,7 +9,6 @@
 		"start": "bun run dist/server.js"
 	},
 	"dependencies": {
-		"@bogeychan/elysia-logger": "^0.1.10",
 		"@elysiajs/cors": "^1.4.1",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",

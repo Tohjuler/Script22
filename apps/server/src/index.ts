@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/correctness/noUnusedVariables: It's fine */
-import { wrap } from "@bogeychan/elysia-logger";
 import { cors } from "@elysiajs/cors";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
@@ -38,7 +37,13 @@ const apiHandler = new OpenAPIHandler(appRouter, {
 // biome-ignore lint/suspicious/noTsIgnore: This is needed
 // @ts-ignore
 const app = new Elysia()
-	.use(wrap(logger))
+	.onError(({ error }) => {
+		logger.error(
+			error,
+			"A error occurred: %s",
+			"message" in error ? error.message : "Unknown error",
+		);
+	})
 	.use(
 		cors({
 			origin: env.CORS_ORIGIN,
@@ -69,6 +74,9 @@ const app = new Elysia()
 		return response ?? new Response("Not Found", { status: 404 });
 	})
 	.get("/", () => "OK")
+	.get("/test-error", () => {
+		throw new Error("Test error for logging");
+	})
 	.listen(3000, async () => {
 		logger.info("Server is running on http://localhost:3000");
 
