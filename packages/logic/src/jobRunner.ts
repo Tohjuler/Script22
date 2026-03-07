@@ -8,6 +8,10 @@ import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";
 import { logger } from "./logger";
+import {
+	sendFailureNotification,
+	sendSuccessNotification,
+} from "./notificationsUtils";
 import { getSetting } from "./settings";
 import { jobConfig } from "./types";
 
@@ -37,24 +41,44 @@ export default async function runJob(
 
 	// ---
 
-	const runId = await db
+	const run = await db
 		.insert(Tables.jobRun)
 		.values({
 			jobId: jobId,
 			serverId: serverId,
 			state: "running",
 		})
-		.returning({ id: Tables.jobRun.id })
-		.then((rows) => rows[0]?.id);
-	if (!runId) throw new Error("Failed to create job run record");
+		.returning({ id: Tables.jobRun.id, createdAt: Tables.jobRun.createdAt })
+		.then((rows) => rows[0]);
+	if (!run) throw new Error("Failed to create job run record");
+	const runId = run.id;
 
-	const finish = async (state: string, output: ExecResult[]) => {
+	const finish = async (
+		state: "failed" | "succeeded",
+		output: ExecResult[],
+	) => {
+		const finishedAt = new Date();
+		const timeTaken = finishedAt.getTime() - run.createdAt.getTime();
+
+		const statusCode = output[output.length - 1]?.status ?? -1;
+		
+		if (state === "failed")
+			await sendFailureNotification(server.name, job.name, {
+				exitCode: statusCode,
+				time: timeTaken,
+			});
+		else
+			await sendSuccessNotification(server.name, job.name, {
+				exitCode: statusCode,
+				time: timeTaken,
+			});
+
 		await db
 			.update(Tables.jobRun)
 			.set({
 				state: state,
 				output: JSON.stringify(output),
-				finishedAt: new Date(),
+				finishedAt: finishedAt,
 			})
 			.where(eq(Tables.jobRun.id, runId))
 			.catch((err) => {
@@ -172,7 +196,7 @@ function execCommand(
 					'Command "%s" finished with code %d, signal %s',
 					command,
 					code,
-					signal
+					signal,
 				);
 				next({ status: code, stdout, stderr });
 			})

@@ -1,6 +1,7 @@
 import { db } from "@script22/db";
 import { Tables } from "@script22/db/schema/main";
 import { eq } from "drizzle-orm";
+import { logger } from "./logger";
 
 export async function getSetting(
 	key: string,
@@ -9,6 +10,7 @@ export async function getSetting(
 	const setting = await db.query.setting.findFirst({
 		where: (table, { eq }) => eq(table.key, key),
 	});
+	logger.debug("Fetched setting %s: %s", key, setting ? setting.value : "not found");
 	return setting ? setting.value : defaultValue;
 }
 
