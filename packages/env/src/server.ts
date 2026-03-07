@@ -10,6 +10,7 @@ export const env = createEnv({
 		CORS_ORIGIN: z.url(),
 		CREDENTIALS_MASTER_KEY_B64: z.string().min(44).max(44), // base64 of 32 bytes is always 44 chars
 		LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+		APPRISE_URL: z.url().optional(),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),

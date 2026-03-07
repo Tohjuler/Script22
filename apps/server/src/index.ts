@@ -12,6 +12,7 @@ import { migrateDb } from "@script22/db";
 import { env } from "@script22/env/server";
 import { handleCronJobs } from "@script22/logic/cronJobs";
 import { logger } from "@script22/logic/logger";
+import { getSetting, setSetting } from "@script22/logic/settings";
 import { Elysia } from "elysia";
 
 const rpcHandler = new RPCHandler(appRouter, {
@@ -92,6 +93,11 @@ const app = new Elysia()
 			.catch((err) => {
 				logger.error(err, "Error migrating database:");
 			});
+
+		if (!(await getSetting("apprise-url")) && env.APPRISE_URL) {
+			await setSetting("apprise-url", env.APPRISE_URL);
+			logger.info("Set Apprise URL from environment variable");
+		}
 
 		logger.info("Starting cron jobs...");
 		await handleCronJobs().catch((err) => {
