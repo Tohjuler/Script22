@@ -54,7 +54,7 @@ export const Settings = {
 		type: "string",
 		defaultValue: "",
 		description:
-			"The apprise notify URL, see https://appriseit.com/services/ for dockumentation on supported services.",
+			"The apprise notify URL, see https://appriseit.com/services/ for documentation on supported services.",
 		placeholder: "e.g. discord://{WebhookID}/{WebhookToken}",
 		group: "Apprise",
 	} as SettingType<"string">,

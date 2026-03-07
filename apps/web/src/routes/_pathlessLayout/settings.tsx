@@ -41,7 +41,7 @@ function SettingsPage() {
 		},
 	});
 
-	const gruppedSettings = useMemo(() => {
+	const groupedSettings = useMemo(() => {
 		const groups: Record<
 			string,
 			(SettingType<SettingTypes> & { key: string })[]
@@ -72,7 +72,7 @@ function SettingsPage() {
 			<h2 className="mb-4 font-semibold text-2xl">Settings</h2>
 			<hr className="mb-4" />
 			<div>
-				{Object.entries(gruppedSettings).map(([group, settings]) => (
+				{Object.entries(groupedSettings).map(([group, settings]) => (
 					<div key={group} className="mb-6">
 						<div className="mb-2 flex items-center gap-2 border-b">
 							<h2 className="font-medium text-lg">{group}</h2>
