@@ -2,6 +2,7 @@ import { db } from "@script22/db";
 import * as schema from "@script22/db/schema/auth";
 import { AuthTables } from "@script22/db/schema/auth";
 import { env } from "@script22/env/server";
+import { logger } from "@script22/logic/logger";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
@@ -57,5 +58,10 @@ export const auth = betterAuth({
 				}
 			}
 		}),
+	},
+	logger: {
+		log: (level, message, ...args) => {
+			logger[level]({ ...args }, message);
+		},
 	},
 });

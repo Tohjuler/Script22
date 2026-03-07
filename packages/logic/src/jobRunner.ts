@@ -7,6 +7,7 @@ import { type SshCredentialKind, Tables } from "@script22/db/schema/main";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
 import { Client } from "ssh2";
+import { logger } from "./logger";
 import { getSetting } from "./settings";
 import { jobConfig } from "./types";
 
@@ -57,7 +58,7 @@ export default async function runJob(
 			})
 			.where(eq(Tables.jobRun.id, runId))
 			.catch((err) => {
-				console.error("Error updating job run record:", err);
+				logger.error(err, "Error updating job run record:");
 			});
 	};
 
@@ -91,27 +92,30 @@ export default async function runJob(
 		const conn = new Client();
 		conn
 			.on("ready", () => {
-				console.debug("SSH Connection ready", {
-					serverId: serverId,
-					jobId: jobId,
-				});
+				logger.debug(
+					{
+						serverId: serverId,
+						jobId: jobId,
+					},
+					"SSH Connection ready",
+				);
 				let currentCommandIndex = 0;
 				const commandOutputs: ExecResult[] = [];
 				const callback = (result: ExecResult) => {
 					if (result.status !== 0 && !config.continueOnFailure) {
-						console.error("Command failed, aborting further execution", result);
+						logger.error(result, "Command failed, aborting further execution");
 						finish("failed", commandOutputs.concat(result));
 						conn.end();
 						return;
 					}
-					console.debug("Command execution result", result);
+					logger.debug(result, "Command execution result");
 
 					if (currentCommandIndex + 1 < config.commands.length) {
 						currentCommandIndex++;
 						commandOutputs.push(result);
 						execCommand(conn, config.commands[currentCommandIndex], callback);
 					} else {
-						console.debug("All commands executed");
+						logger.debug("All commands executed");
 						finish("succeeded", commandOutputs.concat(result));
 						conn.end();
 					}
@@ -119,7 +123,7 @@ export default async function runJob(
 				execCommand(conn, config.commands[0] || "", callback);
 			})
 			.on("error", (err) => {
-				console.error("SSH Connection error", err);
+				logger.error(err, "SSH Connection error");
 				finish("failed", [
 					{
 						status: -1,
@@ -137,7 +141,7 @@ export default async function runJob(
 				password: sshPassword,
 			});
 	} catch (err) {
-		console.error("Unexpected error during job execution", err);
+		logger.error(err, "Unexpected error during job execution");
 		await finish("failed", [
 			{
 				status: -1,
@@ -157,24 +161,27 @@ function execCommand(
 ) {
 	if (!command) throw new Error("No command provided");
 
-	console.debug(`Executing command: ${command}`);
+	logger.debug("Executing command: %s", command);
 	conn.exec(command, (err, stream) => {
 		if (err) throw err;
 		let stdout = "";
 		let stderr = "";
 		stream
 			.on("close", (code: number, signal: string) => {
-				console.debug(
-					`Command "${command}" finished with code ${code}, signal ${signal}`,
+				logger.debug(
+					'Command "%s" finished with code %d, signal %s',
+					command,
+					code,
+					signal
 				);
 				next({ status: code, stdout, stderr });
 			})
 			.on("data", (data: Buffer) => {
-				console.debug(`STDOUT: ${data.toString()}`);
+				logger.debug("STDOUT: %s", data.toString());
 				stdout += data.toString();
 			})
 			.stderr.on("data", (data: Buffer) => {
-				console.debug(`STDERR: ${data.toString()}`);
+				logger.debug("STDERR: %s", data.toString());
 				stderr += data.toString();
 			});
 	});

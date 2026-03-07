@@ -9,15 +9,16 @@
 		"start": "bun run dist/server.js"
 	},
 	"dependencies": {
+		"@bogeychan/elysia-logger": "^0.1.10",
 		"@elysiajs/cors": "^1.4.1",
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
 		"@script22/api": "workspace:*",
-		"@script22/logic": "workspace:*",
 		"@script22/auth": "workspace:*",
 		"@script22/db": "workspace:*",
 		"@script22/env": "workspace:*",
+		"@script22/logic": "workspace:*",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
 		"elysia": "catalog:",

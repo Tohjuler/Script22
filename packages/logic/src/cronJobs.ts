@@ -2,6 +2,7 @@ import { db } from "@script22/db";
 import { YAML } from "bun";
 import { CronJob } from "cron";
 import runJob from "./jobRunner";
+import { logger } from "./logger";
 import { type JobConfig, jobConfig } from "./types";
 
 const cronJobs: {
@@ -19,11 +20,11 @@ export async function handleCronJobs() {
 
 			await handleConfigUpdate(job.id, config);
 		} catch (err) {
-			console.error(`Error parsing job config for job ID ${job.id}:`, err);
+			logger.error(err, "Error parsing job config for job ID %d:", job.id);
 		}
 	}
-	console.log(
-		"Cron jobs have been set up, total:",
+	logger.info(
+		"Cron jobs have been set up, total: %d",
 		Object.keys(cronJobs).length,
 	);
 }
@@ -33,11 +34,11 @@ export async function handleConfigUpdate(jobId: number, config: JobConfig) {
 		// Job already exists, remove it
 		cronJobs[jobId]?.stop();
 		delete cronJobs[jobId];
-		console.log(`Existing cron job for job ID ${jobId} stopped and removed`);
+		logger.info("Existing cron job for job ID %d stopped and removed", jobId);
 	}
 
 	if (!config.schedule?.enabled) {
-		console.log(`Cron job for job ID ${jobId} is disabled, skipping setup`);
+		logger.info("Cron job for job ID %d is disabled, skipping setup", jobId);
 		return;
 	}
 
@@ -51,8 +52,10 @@ export async function handleConfigUpdate(jobId: number, config: JobConfig) {
 		process.env.TZ || undefined,
 	);
 	cronJobs[jobId] = cronJob;
-	console.log(
-		`Cron job for job ID ${jobId} has been set up with schedule: ${config.schedule.cron}`,
+	logger.info(
+		"Cron job for job ID %d has been set up with schedule: %s",
+		jobId,
+		config.schedule.cron,
 	);
 }
 
@@ -70,7 +73,7 @@ export function getNextRunTime(jobId: number): Date | null {
 }
 
 async function handleRun(jobId: number, config: JobConfig) {
-	console.debug(`Handling scheduled run for job ID ${jobId}`);
+	logger.debug("Handling scheduled run for job ID %d", jobId);
 	if (!config.schedule) return;
 	let servers: { id: number; name: string }[] = [];
 	if (config.schedule.servers && config.schedule.servers.length > 0) {
@@ -94,17 +97,22 @@ async function handleRun(jobId: number, config: JobConfig) {
 		);
 	});
 
-	console.debug(
-		`Running job ID ${jobId} on servers:`,
-		servers.map((s) => s.id),
+	logger.debug(
+		{
+			servers: servers.map((s) => ({ id: s.id, name: s.name })),
+		},
+		"Running job ID %d on servers:",
+		jobId,
 	);
 
 	for (const server of servers) {
-		console.log(`Running job ID ${jobId} on server ID ${server.id}`);
+		logger.info("Running job ID %d on server ID %d", jobId, server.id);
 		runJob(server.id, jobId).catch((err) => {
-			console.error(
-				`Error running job ID ${jobId} on server ID ${server.id}:`,
+			logger.error(
 				err,
+				"Error running job ID %d on server ID %d:",
+				jobId,
+				server.id,
 			);
 		});
 	}

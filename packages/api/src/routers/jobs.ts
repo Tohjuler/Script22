@@ -6,6 +6,7 @@ import {
 	removeCronJob,
 } from "@script22/logic/cronJobs";
 import runJob from "@script22/logic/jobRunner";
+import { logger } from "@script22/logic/logger";
 import { jobConfig } from "@script22/logic/types";
 import { YAML } from "bun";
 import { eq } from "drizzle-orm";
@@ -70,7 +71,7 @@ export const jobsRouter = {
 			if (!newJob) throw new Error("Failed to create new job");
 
 			handleConfigUpdate(newJob.id, parsed.data).catch((err) => {
-				console.error(`Error updating cron job for job ID ${newJob.id}:`, err);
+				logger.error(err, "Error updating cron job for job ID %d:", newJob.id);
 			});
 
 			return newJob;
@@ -129,7 +130,7 @@ export const jobsRouter = {
 
 			if (updatedConfig) {
 				handleConfigUpdate(input.id, updatedConfig).catch((err) => {
-					console.error(`Error updating cron job for job ID ${input.id}:`, err);
+					logger.error(err, "Error updating cron job for job ID %d:", input.id);
 				});
 			}
 
@@ -159,9 +160,11 @@ export const jobsRouter = {
 				throw new Error(`Server with id ${input.serverId} not found`);
 
 			const runId = await runJob(input.serverId, input.jobId).catch((err) => {
-				console.error(
-					`Error running job ID ${input.jobId} on server ID ${input.serverId}:`,
+				logger.error(
 					err,
+					"Error running job ID %d on server ID %d:",
+					input.jobId,
+					input.serverId,
 				);
 				return undefined;
 			});

@@ -4,6 +4,7 @@ import {
 	updateEncryptedCredential,
 } from "@script22/db/credentialUtils";
 import { Tables } from "@script22/db/schema/index";
+import { logger } from "@script22/logic/logger";
 import { eq } from "drizzle-orm";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
@@ -111,7 +112,7 @@ export const serversRouter = {
 						authKind,
 						authSecret,
 					).catch((err) => {
-						console.error("Failed to update credential:", err);
+						logger.error(err, "Failed to update credential:");
 						throw new Error("Failed to update credential");
 					});
 				} else {
