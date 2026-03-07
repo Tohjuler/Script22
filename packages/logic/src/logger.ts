@@ -1,6 +1,6 @@
-import { type Logger, pino } from "pino";
+import pino from "pino";
 
-export const logger: Logger<never, boolean> =
+export const logger =
 	process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test"
 		? // JSON in production and test
 			pino({

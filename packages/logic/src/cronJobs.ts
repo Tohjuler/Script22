@@ -98,7 +98,9 @@ async function handleRun(jobId: number, config: JobConfig) {
 	});
 
 	logger.debug(
-		servers.map((s) => s.id),
+		{
+			servers: servers.map((s) => ({ id: s.id, name: s.name })),
+		},
 		"Running job ID %d on servers:",
 		jobId,
 	);
