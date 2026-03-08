@@ -8,10 +8,13 @@ services:
       BETTER_AUTH_URL: http://localhost:3000
       CORS_ORIGIN: http://localhost:3001
       DB_FILE_NAME: /app/db/db.sqlite
+      APPRISE_URL: http://apprise:8000
       TZ: Europe/Copenhagen # Set your timezone
       # Keep this secret, it is used to encrypt the credentials in the database. 
       # If you change it, all credentials will be lost.
       CREDENTIALS_MASTER_KEY_B64: # openssl rand -base64 32
+    depends_on:
+      - apprise
     ports:
       - "3000:3000" # The API
     volumes:
@@ -27,6 +30,14 @@ services:
       - script22-api
     ports:
       - "3001:3001" # The UI
+
+  apprise:
+    image: caronc/apprise:latest
+    restart: unless-stopped
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      TZ: Europe/Copenhagen # Set your timezone
+      APPRISE_WORKER_COUNT: 1
 
 volumes:
   db:
