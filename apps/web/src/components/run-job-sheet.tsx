@@ -19,33 +19,46 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "./ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface RunJobSheetProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	serverId: number;
+	job: {
+		id: number;
+		name: string;
+	};
 }
 
-export function RunJobSheet({
-	open,
-	onOpenChange,
-	serverId,
-}: RunJobSheetProps) {
-	const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+export function RunJobSheet({ open, onOpenChange, job }: RunJobSheetProps) {
+	const [selectedServerId, setSelectedServerId] = useState<number | null>(null);
 
-	const { data: jobs } = useQuery({
-		queryKey: ["jobs", "getList"],
-		queryFn: () => client.jobs.getList({}),
+	const { data: servers } = useQuery({
+		queryKey: ["servers", "getList"],
+		queryFn: () => client.servers.getList({}),
 	});
 
-	const runJobMutation = useMutation({
+	const runJobOnServerMutation = useMutation({
 		mutationFn: (input: { jobId: number; serverId: number }) =>
 			client.jobs.runOnServer(input),
 		onSuccess: (data) => {
 			toast.success(`Job started with run ID: ${data.runId}`);
 			queryClient.invalidateQueries({ queryKey: ["runs"] });
 			onOpenChange(false);
-			setSelectedJobId(null);
+			setSelectedServerId(null);
+		},
+		onError: (error: Error) => {
+			toast.error(`Failed to run job: ${error.message}`);
+		},
+	});
+
+	const runJobMutation = useMutation({
+		mutationFn: (input: { jobId: number }) =>
+			client.jobs.run({ jobId: input.jobId }),
+		onSuccess: () => {
+			toast.success("Job(s) started.");
+			queryClient.invalidateQueries({ queryKey: ["runs"] });
+			onOpenChange(false);
 		},
 		onError: (error: Error) => {
 			toast.error(`Failed to run job: ${error.message}`);
@@ -54,40 +67,43 @@ export function RunJobSheet({
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!selectedJobId) return;
+		if (!selectedServerId) return;
 
-		runJobMutation.mutate({
-			jobId: selectedJobId,
-			serverId,
+		runJobOnServerMutation.mutate({
+			serverId: selectedServerId,
+			jobId: job.id,
 		});
 	};
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent className="p-2">
+			<SheetContent
+				className="p-2"
+				onOpenAutoFocus={(event) => event.preventDefault()}
+			>
 				<SheetHeader>
 					<SheetTitle>Run Job</SheetTitle>
 					<SheetDescription>
-						Select a job to run on this server
+						Select a server to run the job "{job.name}" on.
 					</SheetDescription>
 				</SheetHeader>
 
 				<form onSubmit={handleSubmit} className="mt-3 space-y-4 px-3">
 					<Field>
-						<Label htmlFor="job">Job</Label>
+						<Label htmlFor="server">Server</Label>
 						<Select
-							value={String(selectedJobId || "")}
+							value={String(selectedServerId || "")}
 							onValueChange={(value) =>
-								setSelectedJobId(value ? Number(value) : null)
+								setSelectedServerId(value ? Number(value) : null)
 							}
 						>
-							<SelectTrigger id="job">
-								<SelectValue placeholder="Select job" />
+							<SelectTrigger id="server">
+								<SelectValue placeholder="Select server" />
 							</SelectTrigger>
 							<SelectContent>
-								{jobs?.map((job) => (
-									<SelectItem key={job.id} value={job.id.toString()}>
-										{job.name}
+								{servers?.map((server) => (
+									<SelectItem key={server.id} value={server.id.toString()}>
+										{server.name}
 									</SelectItem>
 								))}
 							</SelectContent>
@@ -103,10 +119,26 @@ export function RunJobSheet({
 						>
 							Cancel
 						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									className="ml-auto"
+									onClick={() => runJobMutation.mutate({ jobId: job.id })}
+								>
+									Run default
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>
+									This will run the job as if it was on a schedule, meaning it
+									will pick the server(s) based on the job's scheduling config.
+								</p>
+							</TooltipContent>
+						</Tooltip>
 						<Button
 							type="submit"
 							className="flex-1"
-							disabled={!selectedJobId || runJobMutation.isPending}
+							disabled={!selectedServerId || runJobOnServerMutation.isPending}
 						>
 							Run
 						</Button>

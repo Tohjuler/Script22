@@ -72,7 +72,7 @@ export function getNextRunTime(jobId: number): Date | null {
 	return cronJob.nextDate().toJSDate() || null;
 }
 
-async function handleRun(jobId: number, config: JobConfig) {
+export async function handleRun(jobId: number, config: JobConfig) {
 	logger.debug("Handling scheduled run for job ID %d", jobId);
 	if (!config.schedule) return;
 	let servers: { id: number; name: string }[] = [];

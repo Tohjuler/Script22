@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { HostJobRuns } from "@/components/host-job-runs";
 import { HostSheet } from "@/components/host-sheet";
 import { HostStatistics } from "@/components/host-statistics";
-import { RunJobSheet } from "@/components/run-job-sheet";
+import { RunJobOnServerSheet } from "@/components/run-job-server-sheet";
 import { Button } from "@/components/ui/button";
 import { client } from "@/utils/orpc";
 
@@ -64,7 +64,7 @@ function HostDetailPage() {
 			<HostJobRuns runs={runs || []} serverId={Number(hostId)} />
 
 			{/* Sheets */}
-			<RunJobSheet
+			<RunJobOnServerSheet
 				open={isRunJobSheetOpen}
 				onOpenChange={setIsRunJobSheetOpen}
 				serverId={Number(hostId)}

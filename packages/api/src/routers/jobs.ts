@@ -3,6 +3,7 @@ import { Tables } from "@script22/db/schema/main";
 import {
 	getNextRunTime,
 	handleConfigUpdate,
+	handleRun,
 	removeCronJob,
 } from "@script22/logic/cronJobs";
 import runJob from "@script22/logic/jobRunner";
@@ -143,6 +144,21 @@ export const jobsRouter = {
 			.returning();
 		removeCronJob(input.id);
 		return deletedJob;
+	}),
+
+	run: pp.input(z.object({ jobId: z.number() })).handler(async ({ input }) => {
+		const job = await db.query.job.findFirst({
+			where: (job, { eq }) => eq(job.id, input.jobId),
+		});
+		if (!job) throw new Error(`Job with id ${input.jobId} not found`);
+
+		const config = jobConfig.parse(YAML.parse(job.config));
+		if (!config.commands || config.commands.length === 0)
+			throw new Error("No commands to run");
+
+		await handleRun(job.id, config);
+
+		return { message: "Job run started" };
 	}),
 
 	runOnServer: pp

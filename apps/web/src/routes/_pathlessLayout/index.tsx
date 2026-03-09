@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { JobSheet } from "@/components/job-sheet";
+import { RunJobSheet } from "@/components/run-job-sheet";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -42,6 +43,7 @@ function DashboardPage() {
 	const [isJobSheetOpen, setIsJobSheetOpen] = useState(false);
 	const [selectedJobId, setSelectedJobId] = useState<number | undefined>();
 	const [deleteJobId, setDeleteJobId] = useState<number | undefined>();
+	const [runJobId, setRunJobId] = useState<number | undefined>();
 	const queryClient = useQueryClient();
 
 	const { data: jobs } = useQuery({
@@ -230,7 +232,7 @@ function DashboardPage() {
 										</span>
 									</div>
 									<div className="flex gap-2">
-										<Button size="sm" variant="outline">
+										<Button size="sm" variant="outline" onClick={() => setRunJobId(job.id)}>
 											Run
 										</Button>
 										<Button
@@ -344,6 +346,17 @@ function DashboardPage() {
 				open={isJobSheetOpen}
 				onOpenChange={setIsJobSheetOpen}
 				jobId={selectedJobId}
+			/>
+
+			<RunJobSheet
+				open={runJobId !== undefined}
+				onOpenChange={(open) => {
+					if (!open) setRunJobId(undefined);
+				}}
+				job={{
+					id: runJobId ?? 0,
+					name: jobs?.find((job) => job.id === runJobId)?.name ?? "",
+				}}
 			/>
 
 			{/* Delete Job Dialog */}
