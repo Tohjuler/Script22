@@ -232,7 +232,11 @@ function DashboardPage() {
 										</span>
 									</div>
 									<div className="flex gap-2">
-										<Button size="sm" variant="outline" onClick={() => setRunJobId(job.id)}>
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => setRunJobId(job.id)}
+										>
 											Run
 										</Button>
 										<Button
