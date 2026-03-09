@@ -36,11 +36,11 @@ FROM oven/bun:1.3.10-alpine AS api
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=build-api /app/apps/server/dist/server.js ./server.js
+COPY --from=build-api /app/apps/server/dist/ ./
 COPY packages/db/src/migrations ./drizzle
 
 EXPOSE 3000
-CMD ["bun", "run", "./server.js"]
+CMD ["bun", "run", "./index.js"]
 
 FROM oven/bun:1.3.10-alpine AS web
 WORKDIR /app

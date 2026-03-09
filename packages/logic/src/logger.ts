@@ -1,10 +1,11 @@
+import { env } from "@script22/env/server";
 import pino from "pino";
 
 export const logger =
-	process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test"
+	env.NODE_ENV === "production" || env.NODE_ENV === "test"
 		? // JSON in production and test
 			pino({
-				level: process.env.LOG_LEVEL || "info",
+				level: env.LOG_LEVEL || "info",
 			})
 		: // Pretty print in development
 			pino({
