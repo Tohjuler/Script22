@@ -83,7 +83,7 @@ function SettingsPage() {
 									<Tooltip>
 										<TooltipTrigger asChild>
 											<Label className="mr-auto" htmlFor={setting.key}>
-												{setting.name} <InfoIcon className="h-3 w-3"/>
+												{setting.name} <InfoIcon className="h-3 w-3" />
 											</Label>
 										</TooltipTrigger>
 										<TooltipContent>
