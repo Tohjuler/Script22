@@ -1,42 +1,34 @@
 <h1 align="center">Script22</h1>
-<p align="center">A simple web app to automatically run scripts on servers through SSH.</p>
 <br/>
-
-## Table of Contents
-
-* [⚡General Info](#general-information)
-* [🧬Tech Stack](#tech-stack)
-* [🔨Setup](#setup)
-* [📝Contribution](#contribution)
-
-## ⚡General Information
 
 This project was created because I needed a way to automatically update servers and was tired of the trouble of running other apps that are way too complicated for this simple purpose. So I created this app; it allows for adding servers, organizing them in folders, and running simple scripts defined in a config on them. The scripts run on a cron schedule and are fully configurable through the UI.
 
-## 🧬Tech Stack
+## Quick start (Docker)
 
-* [Bun](https://bun.sh) - Js Runtime
-* [Tanstack Start](https://tanstack.com/start/latest) - Web Framework
-* [ElysiaJs](https://elysiajs.com/) - API Framework
-* [oRPC](https://orpc.dev/) - API contract layer
-* [Drizzle ORM](https://orm.drizzle.team) - Database ORM, with SQLite as database
+The easiest way to deploy the app is though Docker.
 
-## 🔨Setup
+### Docker compose
 
-### 💻Local Development
+Copy one of the docker compose examples:
 
-1. Clone the repo
-2. Install dependencies `bun i install`
-3. Create a .env in `apps/server` and `apps/web`, and fill it in.
-4. Start the server `bun run dev`
+* [docker-compose.yml](https://github.com/Tohjuler/Script22/blob/main/docker-compose.yml) - Full app.
+* [docker-compose.apprise.yml](https://github.com/Tohjuler/Script22/blob/main/docker-compose.apprise.yml) - Full app with apprise (used for notifications).
 
-### 🖥️Docker
+Edit the compose fil and configure the env variables.
 
-Get the [.env.example](https://github.com/Tohjuler/Script22/blob/main/apps/server/.env.example) file from the repo, edit it and then rename it to .env
+Start the services:
 
-This example expects you use the default database setup from .env.example.
+```bash
+docker compose up -d
+```
 
-Run the API image:
+The UI will be accible at **<http://localhost:3001>**, and the API at **<http://localhost:3000>**
+
+### Docker run
+
+For the server you need to copy the [.env.example](https://github.com/Tohjuler/Script22/blob/main/apps/server/.env.example) and rename it it `.env`, and then edit it to set the vars.
+
+Start the server:
 
 ```bash
 docker run -d \
@@ -47,7 +39,7 @@ docker run -d \
 ghcr.io/tohjuler/script22-api:latest
 ```
 
-Run the web image:
+Start the web UI
 
 ```bash
 docker run -d \
@@ -57,17 +49,55 @@ docker run -d \
 ghcr.io/tohjuler/script22-web:latest
 ```
 
-For at full stack deploy (app and consumet api)
-See [docker-compose.yml](https://github.com/Tohjuler/Script22/blob/main/docker-compose.yml)
+The UI will be accible at **<http://localhost:3001>**, and the API at **<http://localhost:3000>**
 
-Access the UI at `http://localhost:3001`
+## Dev Setup
 
-## 📝Contribution
+The stack uses [Bun](https//bun.sh), so you need that installed.
 
-Contributions are always welcome!
-Contributions can be given in the form of:
+### Install
 
-* Code (PR)
-* Documentation (PR)
-* Ideas (Issues)
-* Bug reports (Issues)
+```bash
+git clone https://github.com/Tohjuler/Script22.git
+
+cd script22
+
+bun install
+```
+
+### Configuation
+
+Create a `.env` in `apps/server` and `apps/web`.
+
+### Running
+
+```bash
+bun run dev
+```
+
+* Frontend: <http://localhost:3001>
+* API: <http://localhost:3000>
+
+### Building
+
+```bash
+bun run build
+```
+
+Output will be in `apps/web/dist` for web and `apps/server/dist` for the server.
+
+## Project Structure
+
+```text
+script22/
+├── apps/
+│   ├── web/     # Frontend (Tanstack Start)
+│   └── server   # API (ElysiaJs)
+└── packages/
+    ├── api/     # API Routes (orpc)
+    ├── auth/    # Auth utils (Better-Auth)
+    ├── config/  # TSConfig
+    ├── db/      # Database utils and schema (Drizzle ORM)
+    ├── env/     # Env config (env-core)
+    └── logic/   # Logic layer
+```
