@@ -9,7 +9,7 @@ import {
 	Settings,
 	Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +64,7 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 	const hostId = "hostId" in params ? params.hostId : undefined;
 
 	const [deleteFolderId, setDeleteFolderId] = useState<number | null>(null);
+	const [folderState, setFolderState] = useState<string[]>([]);
 
 	const { data: servers } = useQuery({
 		queryKey: ["servers", "getList"],
@@ -84,6 +85,16 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 			toast.error(`Failed to delete folder: ${error.message}`);
 		},
 	});
+
+	useEffect(() => {
+		if (localStorage.getItem("folderState")) {
+			setFolderState(JSON.parse(localStorage.getItem("folderState")!));
+		}
+	}, []);
+
+	useEffect(() => {
+		localStorage.setItem("folderState", JSON.stringify(folderState));
+	}, [folderState]);
 
 	const tree = useMemo<ServerTreeItem[]>(() => {
 		const rootServers =
@@ -149,6 +160,16 @@ export function HostsSidebar({ onAddHost }: HostsSidebarProps) {
 									item={item}
 									activeHostId={hostId}
 									onDeleteFolder={(folderId) => setDeleteFolderId(folderId)}
+									isOpen={(id) => folderState?.includes(String(id)) ?? false}
+									setOpen={(id, open) => {
+										if (open) {
+											setFolderState?.((prev) => [...(prev || []), String(id)]);
+										} else {
+											setFolderState?.((prev) =>
+												prev ? prev.filter((fid) => fid !== String(id)) : [],
+											);
+										}
+									}}
 								/>
 							))}
 						</SidebarMenu>
@@ -230,10 +251,14 @@ function Tree({
 	item,
 	activeHostId,
 	onDeleteFolder,
+	isOpen,
+	setOpen,
 }: {
 	item: ServerTreeItem;
 	activeHostId?: string;
 	onDeleteFolder?: (folderId: number) => void;
+	isOpen: (id: number) => boolean;
+	setOpen: (id: number, open: boolean) => void;
 }) {
 	if (item.type === "server") {
 		return (
@@ -249,7 +274,11 @@ function Tree({
 	return (
 		<SidebarMenuItem>
 			<Collapsible
-				defaultOpen={item.items.some((i) => activeHostId === String(i.id))}
+				defaultOpen={
+					item.items.some((i) => activeHostId === String(i.id)) ||
+					isOpen(item.id)
+				}
+				onOpenChange={(open) => setOpen(item.id, open)}
 				className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
 			>
 				<CollapsibleTrigger asChild>
@@ -283,6 +312,8 @@ function Tree({
 									item={subItem}
 									activeHostId={activeHostId}
 									onDeleteFolder={onDeleteFolder}
+									isOpen={isOpen}
+									setOpen={setOpen}
 								/>
 							))}
 					</SidebarMenuSub>
