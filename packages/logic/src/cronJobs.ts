@@ -1,7 +1,7 @@
 import { db } from "@script22/db";
 import { YAML } from "bun";
 import { CronJob } from "cron";
-import runJob from "./jobRunner";
+import { queueJob } from "./jobRunner";
 import { logger } from "./logger";
 import { type JobConfig, jobConfig } from "./types";
 
@@ -101,16 +101,16 @@ export async function handleRun(jobId: number, config: JobConfig) {
 		{
 			servers: servers.map((s) => ({ id: s.id, name: s.name })),
 		},
-		"Running job ID %d on servers:",
+		"Queuing job ID %d on servers:",
 		jobId,
 	);
 
 	for (const server of servers) {
-		logger.info("Running job ID %d on server ID %d", jobId, server.id);
-		runJob(server.id, jobId).catch((err) => {
+		logger.info("Queuing job ID %d on server ID %d", jobId, server.id);
+		queueJob(server.id, jobId).catch((err) => {
 			logger.error(
 				err,
-				"Error running job ID %d on server ID %d:",
+				"Error queuing job ID %d on server ID %d:",
 				jobId,
 				server.id,
 			);
