@@ -122,6 +122,14 @@ async function startJob(
 		return null;
 	}
 
+	// Mark job as running
+	await db
+		.update(Tables.jobRun)
+		.set({ state: "running", startedAt: new Date() })
+		.where(eq(Tables.jobRun.id, runId)).catch((err) => {
+			logger.error(err, "Error updating job run record to running state:");
+		});
+
 	const sshKey =
 		auth?.kind === "private_key"
 			? auth.secret

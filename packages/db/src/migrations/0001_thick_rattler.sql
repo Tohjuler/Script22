@@ -1,0 +1,1 @@
+ALTER TABLE `job_run` ADD `started_at` integer;

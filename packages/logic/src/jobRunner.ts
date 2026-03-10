@@ -11,6 +11,14 @@ export async function queueJob(
 ): Promise<number> {
 	const job = await createJob(serverId, jobId);
 	queue.push(job);
+	logger.debug(
+		"Job ID %d queued for server ID %d. Running jobs: %d, Queued jobs: %d",
+		jobId,
+		serverId,
+		runningJobs.length,
+		queue.length,
+	);
+	
 	processQueue();
 	return job.id;
 }
