@@ -109,27 +109,27 @@ function DashboardPage() {
 			{
 				state: "Succeeded",
 				count: stateCounts.succeeded,
-				fill: "var(--color-chart-2)",
+				fill: "hsl(142, 76%, 36%)",
 			},
 			{
 				state: "Failed",
 				count: stateCounts.failed,
-				fill: "var(--color-chart-5)",
+				fill: "hsl(0, 80%, 40%)",
 			},
 			{
 				state: "Running",
 				count: stateCounts.running,
-				fill: "var(--color-chart-3)",
+				fill: "hsl(47, 96%, 53%)",
 			},
 			{
 				state: "Pending",
 				count: stateCounts.pending,
-				fill: "var(--color-chart-4)",
+				fill: "hsl(215, 20%, 65%)",
 			},
 			{
 				state: "Other",
 				count: stateCounts.other,
-				fill: "var(--color-chart-1)",
+				fill: "hsl(0, 0%, 50%)",
 			},
 		].filter((item) => item.count > 0);
 
