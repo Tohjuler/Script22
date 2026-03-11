@@ -11,8 +11,8 @@ export const env = createEnv({
 		CREDENTIALS_MASTER_KEY_B64: z.string().min(44).max(44), // base64 of 32 bytes is always 44 chars
 		LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 		APPRISE_URL: z.url().optional(),
-		JOB_RUNNER_CONCURRENCY: z.number().int().positive().default(3),
-		JOB_RUNNER_JOB_TIMEOUT: z.number().int().positive().default(15), // In minutes
+		JOB_RUNNER_CONCURRENCY: z.coerce.number().int().positive().default(3),
+		JOB_RUNNER_JOB_TIMEOUT: z.coerce.number().int().positive().default(15), // In minutes
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),
