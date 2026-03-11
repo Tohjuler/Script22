@@ -20,7 +20,14 @@ export async function queueJob(
 		queue.length,
 	);
 
-	processQueue();
+	processQueue().catch((err) => {
+		logger.error(
+			"Failed to process job queue after adding job ID %d for server ID %d: %s",
+			jobId,
+			serverId,
+			err.message,
+		);
+	});
 	return job.id;
 }
 
@@ -79,9 +86,12 @@ export async function checkJobTimouts() {
 
 export async function onJobEnd(runId: number) {
 	logger.debug("Job ID %d has ended. Removing from running jobs.", runId);
-	runningJobs.splice(
-		runningJobs.findIndex((j) => j.id === runId),
-		1,
-	);
+	const idx = runningJobs.findIndex((j) => j.id === runId);
+	if (idx === -1) {
+		logger.warn("Job ID %d ended but was not found in running jobs.", runId);
+		return;
+	}
+
+	runningJobs.splice(idx, 1);
 	processQueue();
 }
