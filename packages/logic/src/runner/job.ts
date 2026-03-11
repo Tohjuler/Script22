@@ -96,9 +96,7 @@ export async function createJob(
 	};
 }
 
-export async function requeueJob(
-	runId: number,
-): Promise<QueuedJob> {
+export async function requeueJob(runId: number): Promise<QueuedJob> {
 	const jobRun = await db.query.jobRun.findFirst({
 		columns: { jobId: true, serverId: true },
 		with: {
@@ -109,7 +107,8 @@ export async function requeueJob(
 			},
 			server: true,
 		},
-		where: (table, { eq, and }) => and(eq(table.id, runId), eq(table.state, "pending")),
+		where: (table, { eq, and }) =>
+			and(eq(table.id, runId), eq(table.state, "pending")),
 	});
 	if (!jobRun) throw new Error("Job run record not found");
 
@@ -123,20 +122,21 @@ export async function requeueJob(
 		serverId: jobRun.serverId,
 
 		start: async () => {
-			const res = await startJob(runId, jobRun.jobId, { ...jobRun.server, config }).catch(
-				async (err) => {
-					logger.error(err, "Unexpected error during job execution");
-					await finishJob(runId, "failed", [
-						{
-							status: -1,
-							stdout: "",
-							stderr: `Unexpected error: ${err instanceof Error ? err.message : String(err)}`,
-						},
-					]);
+			const res = await startJob(runId, jobRun.jobId, {
+				...jobRun.server,
+				config,
+			}).catch(async (err) => {
+				logger.error(err, "Unexpected error during job execution");
+				await finishJob(runId, "failed", [
+					{
+						status: -1,
+						stdout: "",
+						stderr: `Unexpected error: ${err instanceof Error ? err.message : String(err)}`,
+					},
+				]);
 
-					return null;
-				},
-			);
+				return null;
+			});
 			if (!res) throw new Error("Failed to start job");
 
 			return res;
@@ -285,6 +285,7 @@ async function finishJob(
 	const res = await db.query.jobRun.findFirst({
 		columns: {
 			startedAt: true,
+			createdAt: true,
 		},
 		with: {
 			server: {
@@ -304,13 +305,9 @@ async function finishJob(
 		logger.error("Job run record not found for runId %d", runId);
 		return;
 	}
-	if (!res.startedAt) {
-		logger.error("Job run record missing startedAt for runId %d", runId);
-		return;
-	}
-
 	const finishedAt = new Date();
-	const timeTaken = finishedAt.getTime() - res.startedAt.getTime();
+	const startedAt = res.startedAt || res.createdAt || new Date();
+	const timeTaken = finishedAt.getTime() - startedAt.getTime();
 
 	const statusCode = output[output.length - 1]?.status ?? -1;
 
