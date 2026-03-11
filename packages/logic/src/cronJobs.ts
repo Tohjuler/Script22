@@ -4,7 +4,7 @@ import { env } from "@script22/env/server";
 import { YAML } from "bun";
 import { CronJob } from "cron";
 import { eq } from "drizzle-orm";
-import { checkJobTimouts, queueJob } from "./jobRunner";
+import { checkJobTimeouts, queueJob } from "./jobRunner";
 import { logger } from "./logger";
 import { type JobConfig, jobConfig } from "./types";
 
@@ -37,7 +37,7 @@ export async function startCleanupCronJob() {
 		"* * * * *", // Every minute
 		async () => {
 			logger.debug("Running cleanup cron job");
-			checkJobTimouts().catch((err) => {
+			checkJobTimeouts().catch((err) => {
 				logger.error(err, "Error checking job timeouts:");
 			});
 

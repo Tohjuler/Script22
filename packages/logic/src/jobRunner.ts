@@ -73,7 +73,7 @@ async function processQueue() {
 	);
 }
 
-export async function checkJobTimouts() {
+export async function checkJobTimeouts() {
 	const maxTime = env.JOB_RUNNER_JOB_TIMEOUT * 60 * 1000;
 
 	for (const job of runningJobs) {
