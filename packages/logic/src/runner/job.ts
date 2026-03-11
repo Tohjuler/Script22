@@ -10,7 +10,7 @@ import { logger } from "../logger";
 import { sendJobNotification } from "../notificationsUtils";
 import { jobConfig } from "../types";
 import { execCommand } from "./commandRunner";
-import { type LogType, logStreamer } from "./logSteamer";
+import { type LogType, logStreamer } from "./logStreamer";
 import { getDefaultAuth } from "./sshAuth";
 
 export type Job = {

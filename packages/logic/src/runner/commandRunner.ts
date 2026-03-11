@@ -1,7 +1,7 @@
 import type { Client } from "ssh2";
 import { logger } from "../logger";
 import type { ExecResult } from "./job";
-import type { LogType } from "./logSteamer";
+import type { LogType } from "./logStreamer";
 
 export function execCommand(
 	conn: Client,
