@@ -1,9 +1,10 @@
+import { db } from "@script22/db";
 import { env } from "@script22/env/server";
 import { logger } from "./logger";
 import { createJob, type Job, type QueuedJob } from "./runner/job";
 
 const runningJobs: Job[] = [];
-const queue: QueuedJob[] = [];
+const queue: QueuedJob[] = []; // TODO: Load and queue jobs from db on startup
 
 export async function queueJob(
 	serverId: number,
@@ -18,9 +19,28 @@ export async function queueJob(
 		runningJobs.length,
 		queue.length,
 	);
-	
+
 	processQueue();
 	return job.id;
+}
+
+export async function createQueueFromDB() {
+	const jobs = await db.query.jobRun.findMany({
+		columns: { jobId: true, serverId: true },
+		where: (jobRun, { eq }) => eq(jobRun.state, "pending"),
+	});
+
+	for (const job of jobs) {
+		queueJob(job.serverId, job.jobId).catch((err) => {
+			logger.error(
+				"Failed to queue job ID %d for server ID %d from DB: %s",
+				job.jobId,
+				job.serverId,
+				err.message,
+			);
+		});
+	}
+	logger.info("Loaded %d pending jobs from database into the queue", jobs.length);
 }
 
 async function processQueue() {

@@ -11,6 +11,7 @@ import { auth } from "@script22/auth";
 import { migrateDb } from "@script22/db";
 import { env } from "@script22/env/server";
 import { handleCronJobs, startCleanupCronJob } from "@script22/logic/cronJobs";
+import { createQueueFromDB } from "@script22/logic/jobRunner";
 import { logger } from "@script22/logic/logger";
 import { getSetting, setSetting } from "@script22/logic/settings";
 import { Elysia } from "elysia";
@@ -106,5 +107,9 @@ const app = new Elysia()
 
 		startCleanupCronJob().catch((err) => {
 			logger.error(err, "Error starting cleanup cron job:");
+		});
+
+		createQueueFromDB().catch((err) => {
+			logger.error(err, "Error creating job queue from database:");
 		});
 	});
