@@ -1,5 +1,5 @@
 import { db } from "@script22/db";
-import { logStreamer } from "@script22/logic/runner/logSteamer";
+import { logStreamer } from "@script22/logic/runner/logStreamer";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
 

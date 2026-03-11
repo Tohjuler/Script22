@@ -38,7 +38,7 @@ export async function createQueueFromDB() {
 	});
 
 	for (const job of jobs) {
-		requeueJob(job.id).catch((err) => {
+		const queueJob = await requeueJob(job.id).catch((err) => {
 			logger.error(
 				"Failed to requeue job ID %d for server ID %d from DB: %s",
 				job.jobId,
@@ -46,6 +46,7 @@ export async function createQueueFromDB() {
 				err.message,
 			);
 		});
+		if (queueJob) queue.push(queueJob);
 	}
 	logger.info(
 		"Loaded %d pending jobs from database into the queue",
@@ -101,5 +102,11 @@ export async function onJobEnd(runId: number) {
 	}
 
 	runningJobs.splice(idx, 1);
-	processQueue();
+	processQueue().catch((err) => {
+		logger.error(
+			"Failed to process job queue after job ID %d ended: %s",
+			runId,
+			err instanceof Error ? err.message : String(err),
+		);
+	});
 }
