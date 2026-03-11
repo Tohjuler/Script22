@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { capitalizeFirstLetter } from "better-auth";
 import { Eye, RefreshCcw, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,7 +13,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn, formatTime } from "@/lib/utils";
+import { capitalizeFirstLetter, cn, formatTime } from "@/lib/utils";
 import { client, queryClient } from "@/utils/orpc";
 
 interface HostJobRunsProps {
@@ -26,9 +25,10 @@ interface HostJobRunsProps {
 		createdAt: Date;
 	}>;
 	serverId: number;
+	isThereRunningJob: boolean;
 }
 
-export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
+export function HostJobRuns({ runs, serverId, isThereRunningJob }: HostJobRunsProps) {
 	const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
 	const [isDetailsSheetOpen, setIsDetailsSheetOpen] = useState(false);
 
@@ -92,6 +92,7 @@ export function HostJobRuns({ runs, serverId }: HostJobRunsProps) {
 					<Button
 						size="icon"
 						variant="ghost"
+						disabled={isThereRunningJob}
 						onClick={() =>
 							queryClient.invalidateQueries({ queryKey: ["runs"] })
 						}

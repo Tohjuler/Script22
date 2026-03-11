@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { HostJobRuns } from "@/components/host-job-runs";
 import { HostSheet } from "@/components/host-sheet";
@@ -18,6 +18,7 @@ function HostDetailPage() {
 	const navigate = useNavigate();
 	const [isRunJobSheetOpen, setIsRunJobSheetOpen] = useState(false);
 	const [isEditHostSheetOpen, setIsEditHostSheetOpen] = useState(false);
+	const [isThereRunningJob, setIsThereRunningJob] = useState(false);
 
 	const { data: host } = useQuery({
 		queryKey: ["servers", "getById", Number(hostId)],
@@ -27,7 +28,14 @@ function HostDetailPage() {
 	const { data: runs } = useQuery({
 		queryKey: ["runs", "getByServerId", Number(hostId)],
 		queryFn: () => client.runs.getByServerId({ serverId: Number(hostId) }),
+		refetchInterval: () => {
+			return isThereRunningJob ? 2000 : false;
+		}, // Poll every 3 seconds if there's a running job
 	});
+
+	useEffect(() => {
+		setIsThereRunningJob(runs?.some((run) => run.state === "running") || false);
+	}, [runs]);
 
 	if (!host) {
 		return <div className="flex-1 p-6">Loading...</div>;
@@ -61,7 +69,11 @@ function HostDetailPage() {
 			<HostStatistics runs={runs || []} />
 
 			{/* Jobs Section */}
-			<HostJobRuns runs={runs || []} serverId={Number(hostId)} />
+			<HostJobRuns
+				runs={runs || []}
+				serverId={Number(hostId)}
+				isThereRunningJob={isThereRunningJob}
+			/>
 
 			{/* Sheets */}
 			<RunJobOnServerSheet

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
 	Sheet,
 	SheetContent,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn, formatTime } from "@/lib/utils";
 import { client } from "@/utils/orpc";
+import LogViewer from "./log-viewer";
 
 interface RunDetailsSheetProps {
 	open: boolean;
@@ -15,7 +17,7 @@ interface RunDetailsSheetProps {
 	runId: number | null;
 }
 
-interface ExecResult {
+export interface ExecResult {
 	status: number;
 	stdout: string;
 	stderr: string;
@@ -50,7 +52,10 @@ export function RunDetailsSheet({
 		enabled: !!run?.serverId,
 	});
 
-	const parsedOutput: ExecResult[] = output ? JSON.parse(output as string) : [];
+	const parsedOutput = useMemo(() => {
+		if (!output) return [];
+		return JSON.parse(output as string) as ExecResult[];
+	}, [output]);
 
 	const getDuration = () => {
 		if (!run?.createdAt) return "N/A";
@@ -119,57 +124,7 @@ export function RunDetailsSheet({
 					{/* Command Outputs */}
 					<div>
 						<h3 className="mb-2 font-semibold text-sm">Command Logs</h3>
-						<div className="max-h-[70vh] space-y-2 overflow-scroll">
-							{parsedOutput.length === 0 ? (
-								<p className="text-muted-foreground text-sm">
-									No output available
-								</p>
-							) : (
-								parsedOutput.map((result, index) => (
-									<div
-										// biome-ignore lint/suspicious/noArrayIndexKey: Command outputs are ordered and don't have unique IDs
-										key={`${runId}-cmd-${index}`}
-										className="rounded-lg border p-3"
-									>
-										<div className="mb-2 flex items-center justify-between">
-											<span className="font-medium text-sm">
-												Command {index + 1}
-											</span>
-											<span
-												className={cn(
-													"text-xs",
-													result.status === 0
-														? "text-green-600"
-														: "text-red-600",
-												)}
-											>
-												Exit code: {result.status}
-											</span>
-										</div>
-										{result.stdout && (
-											<div className="mb-2">
-												<p className="mb-1 text-muted-foreground text-xs">
-													STDOUT:
-												</p>
-												<pre className="max-h-40 overflow-auto rounded bg-muted p-2 font-mono text-xs">
-													{result.stdout}
-												</pre>
-											</div>
-										)}
-										{result.stderr && (
-											<div>
-												<p className="mb-1 text-muted-foreground text-xs">
-													STDERR:
-												</p>
-												<pre className="max-h-40 overflow-auto rounded bg-muted p-2 font-mono text-xs">
-													{result.stderr}
-												</pre>
-											</div>
-										)}
-									</div>
-								))
-							)}
-						</div>
+						<LogViewer logs={parsedOutput} />
 					</div>
 				</div>
 			</SheetContent>

@@ -33,3 +33,8 @@ export function formatDate(date: Date | null): string {
 		hour12: false,
 	}).format(date);
 }
+
+export function capitalizeFirstLetter(str: string): string {
+	if (!str) return str;
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
