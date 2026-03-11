@@ -1,7 +1,7 @@
 import { db } from "@script22/db";
 import { env } from "@script22/env/server";
 import { logger } from "./logger";
-import { createJob, type Job, type QueuedJob } from "./runner/job";
+import { createJob, type Job, type QueuedJob, requeueJob } from "./runner/job";
 
 const runningJobs: Job[] = [];
 const queue: QueuedJob[] = [];
@@ -26,14 +26,14 @@ export async function queueJob(
 
 export async function createQueueFromDB() {
 	const jobs = await db.query.jobRun.findMany({
-		columns: { jobId: true, serverId: true },
+		columns: { id: true, jobId: true, serverId: true },
 		where: (jobRun, { eq }) => eq(jobRun.state, "pending"),
 	});
 
 	for (const job of jobs) {
-		queueJob(job.serverId, job.jobId).catch((err) => {
+		requeueJob(job.id).catch((err) => {
 			logger.error(
-				"Failed to queue job ID %d for server ID %d from DB: %s",
+				"Failed to requeue job ID %d for server ID %d from DB: %s",
 				job.jobId,
 				job.serverId,
 				err.message,

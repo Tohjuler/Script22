@@ -96,6 +96,54 @@ export async function createJob(
 	};
 }
 
+export async function requeueJob(
+	runId: number,
+): Promise<QueuedJob> {
+	const jobRun = await db.query.jobRun.findFirst({
+		columns: { jobId: true, serverId: true },
+		with: {
+			job: {
+				columns: {
+					config: true,
+				},
+			},
+			server: true,
+		},
+		where: (table, { eq, and }) => and(eq(table.id, runId), eq(table.state, "pending")),
+	});
+	if (!jobRun) throw new Error("Job run record not found");
+
+	const config = jobConfig.parse(YAML.parse(jobRun.job.config));
+	if (!config.commands || config.commands.length === 0)
+		throw new Error("No commands to run");
+
+	return {
+		id: runId,
+		jobId: jobRun.jobId,
+		serverId: jobRun.serverId,
+
+		start: async () => {
+			const res = await startJob(runId, jobRun.jobId, { ...jobRun.server, config }).catch(
+				async (err) => {
+					logger.error(err, "Unexpected error during job execution");
+					await finishJob(runId, "failed", [
+						{
+							status: -1,
+							stdout: "",
+							stderr: `Unexpected error: ${err instanceof Error ? err.message : String(err)}`,
+						},
+					]);
+
+					return null;
+				},
+			);
+			if (!res) throw new Error("Failed to start job");
+
+			return res;
+		},
+	};
+}
+
 async function startJob(
 	runId: number,
 	jobId: number,
