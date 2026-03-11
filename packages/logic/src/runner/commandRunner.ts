@@ -9,11 +9,22 @@ export function execCommand(
 	log: (data: { type: LogType["type"]; data: string }) => void,
 	next: (res: ExecResult) => void,
 ) {
-	if (!command) throw new Error("No command provided");
+	if (!command) {
+		log({ type: "stderr", data: "No command provided" });
+		next({ status: 1, stdout: "", stderr: "No command provided" });
+		return;
+	}
 
 	logger.debug("Executing command: %s", command);
 	conn.exec(command, (err, stream) => {
-		if (err) throw err;
+		if (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			logger.error("Failed to execute command '%s': %s", command, message);
+			log({ type: "stderr", data: message });
+			next({ status: 1, stdout: "", stderr: message });
+			return;
+		}
+
 		let stdout = "";
 		let stderr = "";
 		stream

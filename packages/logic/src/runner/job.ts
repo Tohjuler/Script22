@@ -347,5 +347,7 @@ async function finishJob(
 			logger.error(err, "Error updating job run record:");
 		});
 
-	onJobEnd(runId); // Call end, so the job can be removed from the runningJobs list and next queued job can start
+	onJobEnd(runId).catch((err) =>
+		logger.error(err, "Error occurred while ending job:"),
+	); // Call end, so the job can be removed from the runningJobs list and next queued job can start
 }
