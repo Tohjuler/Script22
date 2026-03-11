@@ -10,6 +10,7 @@ import { logger } from "../logger";
 import { sendJobNotification } from "../notificationsUtils";
 import { jobConfig } from "../types";
 import { execCommand } from "./commandRunner";
+import { type LogType, logStreamer } from "./logSteamer";
 import { getDefaultAuth } from "./sshAuth";
 
 export type Job = {
@@ -151,6 +152,13 @@ async function startJob(
 				"SSH Connection ready",
 			);
 
+			const log = (data: Omit<LogType, "commandIndex">) =>
+				logStreamer.publish(runId.toString(), {
+					commandIndex: currentCommandIndex,
+					type: data.type,
+					data: data.data,
+				});
+
 			let currentCommandIndex = 0;
 			const commandOutputs: ExecResult[] = [];
 			const callback = (result: ExecResult) => {
@@ -168,6 +176,7 @@ async function startJob(
 					execCommand(
 						client,
 						server.config.commands[currentCommandIndex],
+						log,
 						callback,
 					);
 				} else {
@@ -176,7 +185,7 @@ async function startJob(
 					client.end();
 				}
 			};
-			execCommand(client, server.config.commands[0] || "", callback);
+			execCommand(client, server.config.commands[0] || "", log, callback);
 		})
 		.on("error", (err) => {
 			logger.error(err, "SSH Connection error");
