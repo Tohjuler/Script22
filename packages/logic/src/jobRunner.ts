@@ -77,9 +77,17 @@ export async function checkJobTimouts() {
 	const maxTime = env.JOB_RUNNER_JOB_TIMEOUT * 60 * 1000;
 
 	for (const job of runningJobs) {
-		if (job.getTimeRunning() > maxTime) {
-			job.cancel("Job timed out");
-			logger.warn("Job ID %d timed out and was cancelled", job.id);
+		if (Date.now() - job.startedAt.getTime() > maxTime) {
+			try {
+				await job.cancel("Job timed out");
+				logger.warn("Job ID %d timed out and was cancelled", job.id);
+			} catch (err) {
+				logger.error(
+					"Failed to cancel timed-out job ID %d: %s",
+					job.id,
+					err instanceof Error ? err.message : String(err),
+				);
+			}
 		}
 	}
 }

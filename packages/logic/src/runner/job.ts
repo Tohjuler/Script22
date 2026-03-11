@@ -17,11 +17,11 @@ export type Job = {
 	id: number;
 	jobId: number;
 	serverId: number;
+	startedAt: Date;
 	client: Client;
 
 	// ---
 	cancel: (message?: string) => Promise<void>;
-	getTimeRunning: () => number;
 };
 
 export type QueuedJob = {
@@ -172,13 +172,26 @@ async function startJob(
 	}
 
 	// Mark job as running
-	await db
+	const startedAt = await db
 		.update(Tables.jobRun)
 		.set({ state: "running", startedAt: new Date() })
 		.where(eq(Tables.jobRun.id, runId))
+		.returning({ startedAt: Tables.jobRun.startedAt })
+		.then((res) => res[0]?.startedAt)
 		.catch((err) => {
 			logger.error(err, "Error updating job run record to running state:");
+			return null;
 		});
+	if (!startedAt) {
+		finish("failed", [
+			{
+				status: -1,
+				stdout: "",
+				stderr: "Failed to update job run state to running",
+			},
+		]);
+		return null;
+	}
 
 	const sshKey =
 		auth?.kind === "private_key"
@@ -259,6 +272,7 @@ async function startJob(
 		id: runId,
 		jobId,
 		serverId: server.id,
+		startedAt,
 		client: client,
 
 		cancel: async (message?: string) => {
@@ -270,9 +284,6 @@ async function startJob(
 				},
 			]);
 			client.end();
-		},
-		getTimeRunning: () => {
-			return Date.now() - server.createdAt.getTime();
 		},
 	};
 }
