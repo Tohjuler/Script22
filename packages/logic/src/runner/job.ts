@@ -126,7 +126,8 @@ async function startJob(
 	await db
 		.update(Tables.jobRun)
 		.set({ state: "running", startedAt: new Date() })
-		.where(eq(Tables.jobRun.id, runId)).catch((err) => {
+		.where(eq(Tables.jobRun.id, runId))
+		.catch((err) => {
 			logger.error(err, "Error updating job run record to running state:");
 		});
 

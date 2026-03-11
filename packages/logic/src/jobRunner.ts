@@ -4,7 +4,7 @@ import { logger } from "./logger";
 import { createJob, type Job, type QueuedJob } from "./runner/job";
 
 const runningJobs: Job[] = [];
-const queue: QueuedJob[] = []; // TODO: Load and queue jobs from db on startup
+const queue: QueuedJob[] = [];
 
 export async function queueJob(
 	serverId: number,
@@ -40,7 +40,10 @@ export async function createQueueFromDB() {
 			);
 		});
 	}
-	logger.info("Loaded %d pending jobs from database into the queue", jobs.length);
+	logger.info(
+		"Loaded %d pending jobs from database into the queue",
+		jobs.length,
+	);
 }
 
 async function processQueue() {
