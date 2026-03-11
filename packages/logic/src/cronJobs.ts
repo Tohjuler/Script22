@@ -1,7 +1,10 @@
 import { db } from "@script22/db";
+import { Tables } from "@script22/db/schema/main";
+import { env } from "@script22/env/server";
 import { YAML } from "bun";
 import { CronJob } from "cron";
-import { queueJob } from "./jobRunner";
+import { eq } from "drizzle-orm";
+import { checkJobTimouts, queueJob } from "./jobRunner";
 import { logger } from "./logger";
 import { type JobConfig, jobConfig } from "./types";
 
@@ -27,6 +30,51 @@ export async function handleCronJobs() {
 		"Cron jobs have been set up, total: %d",
 		Object.keys(cronJobs).length,
 	);
+}
+
+export async function startCleanupCronJob() {
+	new CronJob(
+		"* * * * *", // Every minute
+		async () => {
+			logger.debug("Running cleanup cron job");
+			checkJobTimouts().catch((err) => {
+				logger.error(err, "Error checking job timeouts:");
+			});
+
+			// Cleanup jobRuns with state running in db
+			// ---
+			const maxTime = env.JOB_RUNNER_JOB_TIMEOUT * 60 * 1000;
+
+			const jobs = await db.query.jobRun.findMany({
+				columns: { id: true, createdAt: true },
+				where: (jobRun, { eq }) => eq(jobRun.state, "running"),
+			});
+			const now = new Date();
+			for (const job of jobs) {
+				if (now.getTime() - new Date(job.createdAt).getTime() > maxTime) {
+					await db
+						.update(Tables.jobRun)
+						.set({
+							state: "failed",
+							finishedAt: new Date(),
+							output: JSON.stringify([
+								{
+									status: -1,
+									stdout: "",
+									stderr: "Job cancelled: Timeout exceeded",
+								},
+							]),
+						})
+						.where(eq(Tables.jobRun.id, job.id));
+					logger.info("Marked job ID %d as failed", job.id);
+				}
+			}
+		},
+		null,
+		true,
+		process.env.TZ || undefined,
+	);
+	logger.info("Cleanup cron job has been set up to run every minute");
 }
 
 export async function handleConfigUpdate(jobId: number, config: JobConfig) {

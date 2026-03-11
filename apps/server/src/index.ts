@@ -10,7 +10,7 @@ import { appRouter } from "@script22/api/routers/index";
 import { auth } from "@script22/auth";
 import { migrateDb } from "@script22/db";
 import { env } from "@script22/env/server";
-import { handleCronJobs } from "@script22/logic/cronJobs";
+import { handleCronJobs, startCleanupCronJob } from "@script22/logic/cronJobs";
 import { logger } from "@script22/logic/logger";
 import { getSetting, setSetting } from "@script22/logic/settings";
 import { Elysia } from "elysia";
@@ -102,5 +102,9 @@ const app = new Elysia()
 		logger.info("Starting cron jobs...");
 		await handleCronJobs().catch((err) => {
 			logger.error(err, "Error starting cron jobs:");
+		});
+
+		startCleanupCronJob().catch((err) => {
+			logger.error(err, "Error starting cleanup cron job:");
 		});
 	});
