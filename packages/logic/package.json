@@ -11,6 +11,7 @@
 	},
 	"scripts": {},
 	"dependencies": {
+		"@orpc/experimental-publisher": "^1.13.6",
 		"@script22/db": "workspace:*",
 		"@script22/env": "workspace:*",
 		"@types/ssh2": "^1.15.5",

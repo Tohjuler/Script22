@@ -138,8 +138,9 @@ export const jobRun = sqliteTable(
 		serverId: integer("server_id")
 			.notNull()
 			.references(() => server.id, { onDelete: "cascade" }),
-		state: text("state").notNull(),
+		state: text("state").notNull(), // "pending" | "running" | "succeeded" | "failed"
 		output: text("output"),
+		startedAt: integer("started_at", { mode: "timestamp_ms" }),
 		finishedAt: integer("finished_at", { mode: "timestamp_ms" }),
 		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

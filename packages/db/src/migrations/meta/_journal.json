@@ -8,6 +8,13 @@
 			"when": 1772306972202,
 			"tag": "0000_outgoing_whistler",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1773186257109,
+			"tag": "0001_thick_rattler",
+			"breakpoints": true
 		}
 	]
 }

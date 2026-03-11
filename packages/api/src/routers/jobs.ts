@@ -6,7 +6,7 @@ import {
 	handleRun,
 	removeCronJob,
 } from "@script22/logic/cronJobs";
-import runJob from "@script22/logic/jobRunner";
+import { queueJob } from "@script22/logic/jobRunner";
 import { logger } from "@script22/logic/logger";
 import { jobConfig } from "@script22/logic/types";
 import { YAML } from "bun";
@@ -175,7 +175,7 @@ export const jobsRouter = {
 			if (!server)
 				throw new Error(`Server with id ${input.serverId} not found`);
 
-			const runId = await runJob(input.serverId, input.jobId).catch((err) => {
+			const runId = await queueJob(input.serverId, input.jobId).catch((err) => {
 				logger.error(
 					err,
 					"Error running job ID %d on server ID %d:",
