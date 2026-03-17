@@ -10,7 +10,7 @@ import { logger } from "../logger";
 import { sendJobNotification } from "../notificationsUtils";
 import { jobConfig } from "../types";
 import { execCommand } from "./commandRunner";
-import { type LogType, logStreamer } from "./logStreamer";
+import { clearLogs, type LogType, streamLog } from "./logStreamer";
 import { getDefaultAuth } from "./sshAuth";
 
 export type Job = {
@@ -214,7 +214,7 @@ async function startJob(
 			);
 
 			const log = (data: Omit<LogType, "commandIndex">) =>
-				logStreamer.publish(runId.toString(), {
+				streamLog(runId.toString(), {
 					commandIndex: currentCommandIndex,
 					type: data.type,
 					data: data.data,
@@ -316,6 +316,9 @@ async function finishJob(
 		logger.error("Job run record not found for runId %d", runId);
 		return;
 	}
+
+	clearLogs(runId.toString()); // Remove logs from memory
+
 	const finishedAt = new Date();
 	const startedAt = res.startedAt || res.createdAt || new Date();
 	const timeTaken = finishedAt.getTime() - startedAt.getTime();

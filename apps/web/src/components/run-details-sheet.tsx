@@ -7,8 +7,8 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
-import { cn, formatTime } from "@/lib/utils";
-import { client } from "@/utils/orpc";
+import { capitalizeFirstLetter, cn, formatTime } from "@/lib/utils";
+import { client, queryClient } from "@/utils/orpc";
 import LogViewer from "./log-viewer";
 
 interface RunDetailsSheetProps {
@@ -96,7 +96,7 @@ export function RunDetailsSheet({
 						<div>
 							<p className="text-muted-foreground text-sm">Status</p>
 							<p className={cn("font-medium", getStateColor(run?.state || ""))}>
-								{run?.state || "Unknown"}
+								{capitalizeFirstLetter(run?.state || "Unknown")}
 							</p>
 						</div>
 						<div>
@@ -124,7 +124,18 @@ export function RunDetailsSheet({
 					{/* Command Outputs */}
 					<div>
 						<h3 className="mb-2 font-semibold text-sm">Command Logs</h3>
-						<LogViewer logs={parsedOutput} />
+						<LogViewer
+							logs={parsedOutput}
+							runId={runId ?? undefined}
+							onFinish={() => {
+								queryClient.invalidateQueries({
+									queryKey: ["runs", "getById", runId],
+								});
+								queryClient.invalidateQueries({
+									queryKey: ["runs", "getOutputByRunId", runId],
+								});
+							}}
+						/>
 					</div>
 				</div>
 			</SheetContent>

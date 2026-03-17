@@ -3,33 +3,39 @@ import {
 	experimental_streamedQuery as streamedQuery,
 	useQuery,
 } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { client } from "@/utils/orpc";
 import type { ExecResult } from "./run-details-sheet";
 
 type LogLine = {
 	commandIndex: number;
-	type: "stdout" | "stderr" | "start" | "end";
+	type: "stdout" | "stderr" | "start" | "end" | "close";
 	data: string;
 };
 
 export default function LogViewer({
 	runId,
 	logs,
+	onFinish,
 }: {
 	runId?: number;
 	logs?: ExecResult[];
+	onFinish?: () => void;
 }) {
+	const containerRef = useRef<HTMLDivElement>(null);
+
 	const { data: streamedLogs } = useQuery({
 		queryKey: ["runs", "liveLogs", runId],
 		queryFn: streamedQuery({
 			streamFn: () => client.runs.getLiveOutputByRunId({ id: runId || 0 }),
 		}),
-		enabled: !!runId && !logs,
+		enabled: !!runId && (!logs || logs.length === 0),
+		retry: false,
+		refetchOnWindowFocus: false,
 	});
 
 	const parsedLogs: LogLine[] = useMemo(() => {
-		if (logs) {
+		if (logs && logs.length > 0) {
 			return logs.flatMap((log, index) => {
 				const stdoutLines = log.stdout
 					.split("\n")
@@ -70,10 +76,15 @@ export default function LogViewer({
 				return logLines;
 			});
 		}
-		if (streamedLogs) {
+		if (streamedLogs && streamedLogs.length > 0) {
 			let lastCmdIdx = -1;
 			const logLines: LogLine[] = [];
 			for (const line of streamedLogs) {
+				if (line.type === "close") {
+					if (onFinish) onFinish();
+					break;
+				}
+
 				if (lastCmdIdx !== line.commandIndex) {
 					logLines.push({
 						commandIndex: line.commandIndex,
@@ -91,14 +102,23 @@ export default function LogViewer({
 		return [];
 	}, [logs, streamedLogs]);
 
+	useEffect(() => {
+		if (!containerRef.current) return;
+		containerRef.current.scrollTop = containerRef.current.scrollHeight;
+	}, [parsedLogs.length]);
+
 	return (
-		<div className="max-h-[70vh] overflow-auto rounded-lg border p-4">
+		<div
+			ref={containerRef}
+			className="max-h-[70vh] overflow-auto rounded-lg border p-4"
+		>
 			{parsedLogs.map((log, index) => {
 				const style = {
 					stdout: "border-l-green-500",
 					stderr: "border-l-red-500",
 					start: "border-l-gray-500 text-muted-foreground text-sm mt-3",
 					end: "border-l-gray-500 text-muted-foreground text-sm",
+					close: "",
 				};
 
 				return (

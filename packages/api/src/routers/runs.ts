@@ -1,5 +1,5 @@
 import { db } from "@script22/db";
-import { logStreamer } from "@script22/logic/runner/logStreamer";
+import { getLogs, logStreamer } from "@script22/logic/runner/logStreamer";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
 
@@ -82,9 +82,18 @@ export const runsRouter = {
 	getLiveOutputByRunId: pp
 		.input(z.object({ id: z.number() }))
 		.handler(async function* ({ input, signal }) {
+			// Send existing logs first
+			const existingLogs = getLogs(input.id.toString());
+			for (const log of existingLogs) {
+				yield log;
+			}
+
+			// Then subscribe to new logs
 			const iterator = logStreamer.subscribe(input.id.toString(), { signal });
 			for await (const payload of iterator) {
 				yield payload;
+
+				if (payload.type === "close") break;
 			}
 		}),
 };
