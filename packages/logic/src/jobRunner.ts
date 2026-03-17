@@ -49,7 +49,10 @@ export async function createQueueFromDB() {
 		if (queueJob) queue.push(queueJob);
 	}
 	processQueue().catch((err) => {
-		logger.error("Failed to process job queue after loading from DB: %s", err.message);
+		logger.error(
+			"Failed to process job queue after loading from DB: %s",
+			err.message,
+		);
 	});
 	logger.info(
 		"Loaded %d pending jobs from database into the queue",

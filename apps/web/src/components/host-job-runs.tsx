@@ -28,7 +28,11 @@ interface HostJobRunsProps {
 	isThereRunningJob: boolean;
 }
 
-export function HostJobRuns({ runs, serverId, isThereRunningJob }: HostJobRunsProps) {
+export function HostJobRuns({
+	runs,
+	serverId,
+	isThereRunningJob,
+}: HostJobRunsProps) {
 	const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
 	const [isDetailsSheetOpen, setIsDetailsSheetOpen] = useState(false);
 
