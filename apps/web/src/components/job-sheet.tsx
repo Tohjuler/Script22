@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import yaml from "js-yaml";
+import { AlertTriangleIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { client, queryClient } from "@/utils/orpc";
 import { SimpleYamlEditor } from "./simple-yaml-editor";
+import { Alert, AlertDescription } from "./ui/alert";
 
 const DEFAULT_CONFIG = `schedule:
   enabled: false
@@ -121,6 +124,17 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 		}
 	};
 
+	const usesSudo = useMemo(() => {
+		try {
+			const parsedConfig = jobConfig.parse(
+				jobConfig.safeParse(yaml.load(formData.config)).data,
+			);
+			return parsedConfig.commands.some((cmd) => cmd.trim().startsWith("sudo"));
+		} catch {
+			return false;
+		}
+	}, [formData.config]);
+
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent className="max-w-[90vw] overflow-y-auto data-[side=right]:md:max-w-[40vw]">
@@ -161,6 +175,18 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 							zodType={jobConfig}
 						/>
 					</Field>
+
+					{usesSudo && (
+						<Alert variant="warning">
+							<AlertTriangleIcon />
+							<AlertDescription className="text-xs">
+								When using <code>sudo</code> in commands, you will need to have
+								passwordless sudo configured for the user running the job,
+								otherwise the job will fail when it tries to execute those
+								commands.
+							</AlertDescription>
+						</Alert>
+					)}
 
 					<div className="flex gap-2 pt-4">
 						<Button
