@@ -101,7 +101,7 @@ export function HostJobRuns({
 							queryClient.invalidateQueries({ queryKey: ["runs"] })
 						}
 					>
-						<RefreshCcw />
+						<RefreshCcw className={isThereRunningJob ? "animate-spin" : ""} />
 					</Button>
 				</CardHeader>
 				<CardContent>
