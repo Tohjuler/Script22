@@ -234,12 +234,29 @@ async function startJob(
 				if (currentCommandIndex + 1 < server.config.commands.length) {
 					currentCommandIndex++;
 					commandOutputs.push(result);
-					execCommand(
-						client,
-						server.config.commands[currentCommandIndex],
-						log,
-						callback,
-					);
+					try {
+						execCommand(
+							client,
+							server.config.commands[currentCommandIndex],
+							log,
+							callback,
+						);
+					} catch (err) {
+						logger.error(
+							err,
+							"Error executing command at index %d",
+							currentCommandIndex,
+						);
+						finish(
+							"failed",
+							commandOutputs.concat({
+								status: -1,
+								stdout: "",
+								stderr: `Error executing command: ${err instanceof Error ? err.message : String(err)}`,
+							}),
+						);
+						client.end();
+					}
 				} else {
 					logger.debug("All commands executed");
 					finish("succeeded", commandOutputs.concat(result));
