@@ -129,7 +129,9 @@ export function JobSheet({ open, onOpenChange, jobId }: JobSheetProps) {
 			const parsedConfig = jobConfig.parse(
 				jobConfig.safeParse(yaml.load(formData.config)).data,
 			);
-			return parsedConfig.commands.some((cmd) => cmd.trim().startsWith("sudo"));
+			return parsedConfig.commands.some(
+				(cmd) => cmd.trim().startsWith("sudo") || cmd.includes(" sudo"),
+			);
 		} catch {
 			return false;
 		}
