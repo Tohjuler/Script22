@@ -100,8 +100,9 @@ export default function LogViewer({
 		}
 
 		return [];
-	}, [logs, streamedLogs]);
+	}, [logs, streamedLogs, onFinish]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: The extra param is used to trigger the useEffect to scroll.
 	useEffect(() => {
 		if (!containerRef.current) return;
 		containerRef.current.scrollTop = containerRef.current.scrollHeight;

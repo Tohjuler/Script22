@@ -119,10 +119,10 @@ function SelectSeparator({
 
 export {
 	Select,
-	SelectTrigger,
-	SelectValue,
-	SelectPortal,
 	SelectContent,
 	SelectItem,
+	SelectPortal,
 	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 };

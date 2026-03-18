@@ -45,7 +45,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.6",
+		"@biomejs/biome": "^2.4.7",
 		"@script22/config": "workspace:*",
 		"@types/bun": "catalog:",
 		"turbo": "^2.8.16",
