@@ -46,17 +46,21 @@ export async function startCleanupCronJob() {
 			const maxTime = env.JOB_RUNNER_JOB_TIMEOUT * 60 * 1000;
 
 			const jobs = await db.query.jobRun.findMany({
-				columns: { id: true, startedAt: true },
+				columns: { id: true, startedAt: true, createdAt: true },
 				where: (jobRun, { eq }) => eq(jobRun.state, "running"),
 			});
 			const now = new Date();
 			for (const job of jobs) {
-				if (!job.startedAt) {
-					logger.warn("Job ID %d has no startedAt timestamp", job.id);
-					continue;
-				}
+				if (!job.startedAt)
+					logger.warn(
+						"Job ID %d has no startedAt timestamp, defaulting to createdAt",
+						job.id,
+					);
 
-				if (now.getTime() - new Date(job.startedAt).getTime() > maxTime) {
+				if (
+					now.getTime() - new Date(job.startedAt || job.createdAt).getTime() >
+					maxTime
+				) {
 					await db
 						.update(Tables.jobRun)
 						.set({
