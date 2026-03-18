@@ -48,7 +48,7 @@
 		"@biomejs/biome": "^2.4.7",
 		"@script22/config": "workspace:*",
 		"@types/bun": "catalog:",
-		"turbo": "^2.8.16",
+		"turbo": "^2.8.17",
 		"typescript": "catalog:"
 	},
 	"overrides": {
