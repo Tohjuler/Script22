@@ -30,7 +30,7 @@ continueOnFailure: false
 commands: 
   - echo "Hello, World!"`;
 
-const jobConfig = z.object({
+export const jobConfig = z.object({
 	schedule: z
 		.object({
 			enabled: z.boolean().default(false),

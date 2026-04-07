@@ -146,6 +146,79 @@ export const jobsRouter = {
 		return deletedJob;
 	}),
 
+	statistics: pp
+		.input(z.object({ jobId: z.number() }))
+		.output(
+			z.object({
+				totalRuns: z.number(),
+				completedRuns: z.number(),
+				failedRuns: z.number(),
+				successRate: z.number(),
+				lastRun: z.date().nullable(),
+				totalTimeMs: z.number(),
+				averageTimeMs: z.number(),
+				fastestRunMs: z.number().nullable(),
+				slowestRunMs: z.number().nullable(),
+				stateCounts: z.record(z.string(), z.number()),
+			}),
+		)
+		.handler(async ({ input }) => {
+			const runs = await db.query.jobRun.findMany({
+				where: (jobRun, { eq }) => eq(jobRun.jobId, input.jobId),
+			});
+
+			const totalRuns = runs.length;
+			let completedRuns = 0;
+			let failedRuns = 0;
+			let totalTimeMs = 0;
+			let fastestRunMs: number | null = null;
+			let slowestRunMs: number | null = null;
+			const stateCounts: Record<string, number> = {};
+			let lastRun: Date | null = null;
+
+			for (const run of runs) {
+				stateCounts[run.state] = (stateCounts[run.state] || 0) + 1;
+
+				if (run.state === "succeeded" || run.state === "failed") {
+					completedRuns++;
+					if (run.state === "failed") failedRuns++;
+
+					if (run.finishedAt && run.createdAt) {
+						const duration =
+							new Date(run.finishedAt).getTime() -
+							new Date(run.createdAt).getTime();
+						totalTimeMs += duration;
+
+						if (fastestRunMs === null || duration < fastestRunMs)
+							fastestRunMs = duration;
+						if (slowestRunMs === null || duration > slowestRunMs)
+							slowestRunMs = duration;
+					}
+				}
+
+				const runDate = new Date(run.createdAt);
+				if (!lastRun || runDate > lastRun) lastRun = runDate;
+			}
+
+			const successRate =
+				totalRuns > 0
+					? ((completedRuns - failedRuns) / completedRuns) * 100
+					: 0;
+
+			return {
+				totalRuns,
+				completedRuns,
+				failedRuns,
+				successRate,
+				lastRun,
+				totalTimeMs,
+				averageTimeMs: completedRuns > 0 ? totalTimeMs / completedRuns : 0,
+				fastestRunMs,
+				slowestRunMs,
+				stateCounts,
+			};
+		}),
+
 	run: pp.input(z.object({ jobId: z.number() })).handler(async ({ input }) => {
 		const job = await db.query.job.findFirst({
 			where: (job, { eq }) => eq(job.id, input.jobId),
