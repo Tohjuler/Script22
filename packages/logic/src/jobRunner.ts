@@ -9,6 +9,7 @@ const queue: QueuedJob[] = [];
 export async function queueJob(
 	serverId: number,
 	jobId: number,
+	processImmediately = false,
 ): Promise<number> {
 	const job = await createJob(serverId, jobId);
 	queue.push(job);
@@ -20,14 +21,16 @@ export async function queueJob(
 		queue.length,
 	);
 
-	processQueue().catch((err) => {
-		logger.error(
-			"Failed to process job queue after adding job ID %d for server ID %d: %s",
-			jobId,
-			serverId,
-			err.message,
-		);
-	});
+	if (processImmediately)
+		processQueue().catch((err) => {
+			logger.error(
+				"Failed to process job queue after adding job ID %d for server ID %d: %s",
+				jobId,
+				serverId,
+				err.message,
+			);
+		});
+
 	return job.id;
 }
 
@@ -60,7 +63,7 @@ export async function createQueueFromDB() {
 	);
 }
 
-async function processQueue() {
+export async function processQueue() {
 	logger.debug(
 		"Processing job queue. Running jobs: %d, Queued jobs: %d",
 		runningJobs.length,

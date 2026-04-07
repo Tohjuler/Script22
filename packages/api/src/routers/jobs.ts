@@ -175,7 +175,7 @@ export const jobsRouter = {
 			if (!server)
 				throw new Error(`Server with id ${input.serverId} not found`);
 
-			const runId = await queueJob(input.serverId, input.jobId).catch((err) => {
+			const runId = await queueJob(input.serverId, input.jobId, true).catch((err) => {
 				logger.error(
 					err,
 					"Error running job ID %d on server ID %d:",
