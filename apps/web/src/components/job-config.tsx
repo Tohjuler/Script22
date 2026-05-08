@@ -34,9 +34,9 @@ export default function JobConfig({ job }: JobConfigProps) {
 
 	return (
 		<Card className="h-full">
-			<CardHeader>
+			<CardHeader className="flex items-center">
 				<CardTitle>Configuration</CardTitle>
-				<div className="ml-auto space-x-2">
+				<div className="ml-auto flex items-center space-x-2">
 					{editing ? (
 						<>
 							<Button
@@ -52,7 +52,7 @@ export default function JobConfig({ job }: JobConfigProps) {
 							</Button>
 							<Button
 								size="sm"
-                                variant="active"
+								variant="active"
 								onClick={() => updateMutation.mutate({ id: job.id, config })}
 							>
 								Save
@@ -70,11 +70,12 @@ export default function JobConfig({ job }: JobConfigProps) {
 				</div>
 			</CardHeader>
 			<CardContent>
+				<hr className="mb-2" />
 				<CodeMirror
 					value={config}
 					extensions={[yamlLang()]}
 					theme="dark"
-					className="bg-card! font-mono text-sm"
+					className="w-full font-mono text-sm [&_.cm-gutters]:bg-card! [&_.ͼo]:bg-card!"
 					readOnly={!editing}
 				/>
 			</CardContent>
