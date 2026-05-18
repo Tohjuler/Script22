@@ -117,7 +117,10 @@ export default function LogViewer({
 						key={`${index}-${log.commandIndex}`}
 						className={`wrap-normal w-full text-wrap border-l-2 px-2 hover:bg-card/40 ${style[log.type]}`}
 					>
-						{log.type === "start" && (log.data ? `Command ${log.commandIndex + 1}: ${log.data}` : `Command ${log.commandIndex + 1} started.`)}
+						{log.type === "start" &&
+							(log.data
+								? `Command ${log.commandIndex + 1}: ${log.data}`
+								: `Command ${log.commandIndex + 1} started.`)}
 						{log.type === "end" &&
 							`Command ${log.commandIndex + 1} exited with status ${log.data}`}
 						{(log.type === "stdout" || log.type === "stderr") && log.data}
