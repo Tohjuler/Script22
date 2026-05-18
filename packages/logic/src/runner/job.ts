@@ -34,6 +34,7 @@ export type QueuedJob = {
 };
 
 export type ExecResult = {
+	command?: string;
 	status: number;
 	stdout: string;
 	stderr: string;
@@ -250,6 +251,7 @@ async function startJob(
 						finish(
 							"failed",
 							commandOutputs.concat({
+								command: server.config.commands[currentCommandIndex],
 								status: -1,
 								stdout: "",
 								stderr: `Error executing command: ${err instanceof Error ? err.message : String(err)}`,

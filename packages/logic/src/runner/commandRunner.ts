@@ -16,12 +16,13 @@ export function execCommand(
 	}
 
 	logger.debug("Executing command: %s", command);
+	log({ type: "start", data: command });
 	conn.exec(command, (err, stream) => {
 		if (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			logger.error("Failed to execute command '%s': %s", command, message);
 			log({ type: "stderr", data: message });
-			next({ status: 1, stdout: "", stderr: message });
+			next({ command, status: 1, stdout: "", stderr: message });
 			return;
 		}
 
@@ -37,7 +38,7 @@ export function execCommand(
 				);
 				if (!code) stderr += signal ? `Process killed with signal ${signal}` : "No exit code, defaulting to 0";
 				log({ type: "end", data: (code || 0).toString() });
-				next({ status: code || 0, stdout, stderr });
+				next({ command, status: code || 0, stdout, stderr });
 			})
 			.on("data", (data: Buffer) => {
 				logger.debug("STDOUT: %s", data.toString());

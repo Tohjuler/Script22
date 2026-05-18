@@ -18,6 +18,7 @@ interface RunDetailsSheetProps {
 }
 
 export interface ExecResult {
+	command?: string;
 	status: number;
 	stdout: string;
 	stderr: string;
