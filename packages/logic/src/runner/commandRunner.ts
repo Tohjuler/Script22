@@ -7,7 +7,7 @@ export function execCommand(
 	conn: Client,
 	command: string | undefined,
 	log: (data: { type: LogType["type"]; data: string }) => void,
-	next: (res: ExecResult) => void,
+	next: (res: ExecResult, killed?: boolean) => void,
 ) {
 	if (!command) {
 		log({ type: "stderr", data: "No command provided" });
@@ -36,10 +36,11 @@ export function execCommand(
 					code,
 					signal,
 				);
-				if (!code)
-					stderr += signal
-						? `Process killed with signal ${signal}`
-						: "No exit code, defaulting to 0";
+				if (code === undefined) {
+					next({ command, status: -1, stdout, stderr }, true);
+					return;
+				}
+
 				log({ type: "end", data: (code || 0).toString() });
 				next({ command, status: code || 0, stdout, stderr });
 			})

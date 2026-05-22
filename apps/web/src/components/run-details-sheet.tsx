@@ -1,5 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { CircleXIcon } from "lucide-react";
 import { useMemo } from "react";
+import { toast } from "sonner";
 import {
 	Sheet,
 	SheetContent,
@@ -10,6 +12,8 @@ import {
 import { capitalizeFirstLetter, cn, formatTime } from "@/lib/utils";
 import { client, queryClient } from "@/utils/orpc";
 import LogViewer from "./log-viewer";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface RunDetailsSheetProps {
 	open: boolean;
@@ -53,6 +57,17 @@ export function RunDetailsSheet({
 		enabled: !!run?.serverId,
 	});
 
+	const cancelRunMutation = useMutation({
+		mutationFn: (input: { id: number }) => client.runs.cancelRun(input),
+		onSuccess: () => {
+			toast.success("Run cancelled successfully");
+			queryClient.invalidateQueries({ queryKey: ["runs"] });
+		},
+		onError: (error: Error) => {
+			toast.error(`Failed to cancel run: ${error.message}`);
+		},
+	});
+
 	const parsedOutput = useMemo(() => {
 		if (!output) return [];
 		return JSON.parse(output as string) as ExecResult[];
@@ -94,11 +109,32 @@ export function RunDetailsSheet({
 				<div className="space-y-4 px-6 pb-6">
 					{/* Run Info */}
 					<div className="grid grid-cols-2 gap-4 rounded-lg border p-4">
-						<div>
-							<p className="text-muted-foreground text-sm">Status</p>
-							<p className={cn("font-medium", getStateColor(run?.state || ""))}>
-								{capitalizeFirstLetter(run?.state || "Unknown")}
-							</p>
+						<div className="flex items-center">
+							<div>
+								<p className="text-muted-foreground text-sm">Status</p>
+								<p
+									className={cn("font-medium", getStateColor(run?.state || ""))}
+								>
+									{capitalizeFirstLetter(run?.state || "Unknown")}
+								</p>
+							</div>
+							{run && run?.state === "running" && (
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="ml-auto text-red-400 hover:text-red-400/80"
+											onClick={() => cancelRunMutation.mutate({ id: run.id })}
+										>
+											<CircleXIcon />
+										</Button>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Cancel run</p>
+									</TooltipContent>
+								</Tooltip>
+							)}
 						</div>
 						<div>
 							<p className="text-muted-foreground text-sm">Duration</p>
