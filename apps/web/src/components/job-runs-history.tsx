@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RunDetailsSheet } from "@/components/run-details-sheet";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,8 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatDate, formatTime } from "@/lib/utils";
-import { client } from "@/utils/orpc";
+import { client, queryClient } from "@/utils/orpc";
+import { Button } from "./ui/button";
 import {
 	Tooltip,
 	TooltipContent,
@@ -70,6 +72,18 @@ export function JobRunsHistory({ job }: JobRunsHistoryProps) {
 			<Card>
 				<CardHeader className="flex items-center justify-between">
 					<CardTitle>History</CardTitle>
+					<Button
+						size="icon"
+						variant="ghost"
+						disabled={isThereRunningJob}
+						onClick={() =>
+							queryClient.invalidateQueries({
+								queryKey: ["jobs", "runs", job.id],
+							})
+						}
+					>
+						<RefreshCcw className={isThereRunningJob ? "animate-spin" : ""} />
+					</Button>
 				</CardHeader>
 				<CardContent>
 					{!runs || runs.length === 0 ? (
