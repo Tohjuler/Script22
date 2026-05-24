@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
@@ -41,7 +41,6 @@ export const Route = createFileRoute("/_pathlessLayout/")({
 
 function DashboardPage() {
 	const [isJobSheetOpen, setIsJobSheetOpen] = useState(false);
-	const [selectedJobId, setSelectedJobId] = useState<number | undefined>();
 	const [deleteJobId, setDeleteJobId] = useState<number | undefined>();
 	const [runJobId, setRunJobId] = useState<number | undefined>();
 	const queryClient = useQueryClient();
@@ -210,7 +209,6 @@ function DashboardPage() {
 						<Button
 							size="sm"
 							onClick={() => {
-								setSelectedJobId(undefined);
 								setIsJobSheetOpen(true);
 							}}
 						>
@@ -221,48 +219,43 @@ function DashboardPage() {
 					<div className="space-y-2 rounded-lg border p-2">
 						{jobs && jobs.length > 0 ? (
 							jobs.map((job, i) => (
-								<div
+								<Link
+									to="/jobs/$jobId"
+									params={{ jobId: job.id.toString() }}
 									key={job.id}
-									className={`flex cursor-pointer items-center justify-between border-t p-2 hover:bg-accent ${i === 0 ? "border-t-0" : ""}`}
 								>
-									<div className="flex flex-col">
-										<span>{job.name}</span>
-										<span className="ml-2 text-muted-foreground text-xs">
-											Next run: {formatDate(job.nextRunTime)}
-										</span>
+									<div
+										className={`flex cursor-pointer items-center justify-between border-t p-2 hover:bg-accent ${i === 0 ? "border-t-0" : ""}`}
+									>
+										<div className="flex flex-col">
+											<span>{job.name}</span>
+											<span className="ml-2 text-muted-foreground text-xs">
+												Next run: {formatDate(job.nextRunTime)}
+											</span>
+										</div>
+										<div className="flex gap-2">
+											<Button
+												size="sm"
+												variant="outline"
+												onClick={() => setRunJobId(job.id)}
+											>
+												Run
+											</Button>
+											<Button
+												size="sm"
+												variant="destructive"
+												onClick={() => setDeleteJobId(job.id)}
+												disabled={
+													deleteJobMutation.isPending && deleteJobId === job.id
+												}
+											>
+												{deleteJobMutation.isPending && deleteJobId === job.id
+													? "Deleting..."
+													: "Delete"}
+											</Button>
+										</div>
 									</div>
-									<div className="flex gap-2">
-										<Button
-											size="sm"
-											variant="outline"
-											onClick={() => setRunJobId(job.id)}
-										>
-											Run
-										</Button>
-										<Button
-											size="sm"
-											variant="outline"
-											onClick={() => {
-												setSelectedJobId(job.id);
-												setIsJobSheetOpen(true);
-											}}
-										>
-											Edit
-										</Button>
-										<Button
-											size="sm"
-											variant="destructive"
-											onClick={() => setDeleteJobId(job.id)}
-											disabled={
-												deleteJobMutation.isPending && deleteJobId === job.id
-											}
-										>
-											{deleteJobMutation.isPending && deleteJobId === job.id
-												? "Deleting..."
-												: "Delete"}
-										</Button>
-									</div>
-								</div>
+								</Link>
 							))
 						) : (
 							<p className="py-4 text-center text-muted-foreground text-sm">
@@ -346,11 +339,7 @@ function DashboardPage() {
 			</div>
 
 			{/* Sheets */}
-			<JobSheet
-				open={isJobSheetOpen}
-				onOpenChange={setIsJobSheetOpen}
-				jobId={selectedJobId}
-			/>
+			<JobSheet open={isJobSheetOpen} onOpenChange={setIsJobSheetOpen} />
 
 			<RunJobSheet
 				open={runJobId !== undefined}
