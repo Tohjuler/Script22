@@ -132,7 +132,9 @@ export function RunDetailsSheet({
 									</TooltipTrigger>
 									<TooltipContent>
 										<p>This will kill the run.</p>
-										<p className="text-red-500">There is no confirmation before cancellation.</p>
+										<p className="text-red-500">
+											There is no confirmation before cancellation.
+										</p>
 									</TooltipContent>
 								</Tooltip>
 							)}

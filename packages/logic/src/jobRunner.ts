@@ -134,7 +134,10 @@ export async function cancelRun(id: number) {
 			);
 		}
 	} else if (queue.some((job) => job.id === id)) {
-		queue.splice(queue.findIndex((job) => job.id === id), 1);
+		queue.splice(
+			queue.findIndex((job) => job.id === id),
+			1,
+		);
 		logger.info("Cancelled queued job ID %d", id);
 	} else {
 		logger.warn("Attempted to cancel run ID %d but it was not found", id);
