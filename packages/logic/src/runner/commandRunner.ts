@@ -35,7 +35,10 @@ export function execCommand(
 					code,
 					signal,
 				);
-				if (!code) stderr += signal ? `Process killed with signal ${signal}` : "No exit code, defaulting to 0";
+				if (!code)
+					stderr += signal
+						? `Process killed with signal ${signal}`
+						: "No exit code, defaulting to 0";
 				log({ type: "end", data: (code || 0).toString() });
 				next({ status: code || 0, stdout, stderr });
 			})

@@ -44,9 +44,7 @@ export function JobStatistics({ jobId }: JobStatisticsProps) {
 						</div>
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Last Run:</span>
-							<span className="font-medium">
-								{formatDate(stats.lastRun)}
-							</span>
+							<span className="font-medium">{formatDate(stats.lastRun)}</span>
 						</div>
 					</div>
 				</div>
@@ -76,13 +74,17 @@ export function JobStatistics({ jobId }: JobStatisticsProps) {
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Fastest Run:</span>
 							<span className="font-medium">
-								{stats.fastestRunMs && stats.fastestRunMs > 0 ? formatTime(stats.fastestRunMs) : "--"}
+								{stats.fastestRunMs && stats.fastestRunMs > 0
+									? formatTime(stats.fastestRunMs)
+									: "--"}
 							</span>
 						</div>
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Slowest Run:</span>
 							<span className="font-medium">
-								{stats.slowestRunMs && stats.slowestRunMs > 0 ? formatTime(stats.slowestRunMs) : "--"}
+								{stats.slowestRunMs && stats.slowestRunMs > 0
+									? formatTime(stats.slowestRunMs)
+									: "--"}
 							</span>
 						</div>
 					</div>
