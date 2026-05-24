@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -11,19 +11,8 @@ import {
 	PieChart,
 	XAxis,
 } from "recharts";
-import { toast } from "sonner";
 import { JobSheet } from "@/components/job-sheet";
 import { RunJobSheet } from "@/components/run-job-sheet";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -41,9 +30,7 @@ export const Route = createFileRoute("/_pathlessLayout/")({
 
 function DashboardPage() {
 	const [isJobSheetOpen, setIsJobSheetOpen] = useState(false);
-	const [deleteJobId, setDeleteJobId] = useState<number | undefined>();
 	const [runJobId, setRunJobId] = useState<number | undefined>();
-	const queryClient = useQueryClient();
 
 	const { data: jobs } = useQuery({
 		queryKey: ["jobs", "getList"],
@@ -156,20 +143,6 @@ function DashboardPage() {
 		},
 	};
 
-	const deleteJobMutation = useMutation({
-		mutationFn: (jobId: number) => client.jobs.delete({ id: jobId }),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["jobs", "getList"] });
-			toast.success("Job deleted successfully");
-			setDeleteJobId(undefined);
-		},
-		onError: (error) => {
-			toast.error(
-				error instanceof Error ? error.message : "Failed to delete job",
-			);
-		},
-	});
-
 	return (
 		<div className="space-y-8 p-4">
 			{/* Stats Cards */}
@@ -240,18 +213,6 @@ function DashboardPage() {
 												onClick={() => setRunJobId(job.id)}
 											>
 												Run
-											</Button>
-											<Button
-												size="sm"
-												variant="destructive"
-												onClick={() => setDeleteJobId(job.id)}
-												disabled={
-													deleteJobMutation.isPending && deleteJobId === job.id
-												}
-											>
-												{deleteJobMutation.isPending && deleteJobId === job.id
-													? "Deleting..."
-													: "Delete"}
 											</Button>
 										</div>
 									</div>
@@ -351,40 +312,6 @@ function DashboardPage() {
 					name: jobs?.find((job) => job.id === runJobId)?.name ?? "",
 				}}
 			/>
-
-			{/* Delete Job Dialog */}
-			<AlertDialog
-				open={deleteJobId !== undefined}
-				onOpenChange={(open) => {
-					if (!open) setDeleteJobId(undefined);
-				}}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Job</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to delete this job? This action cannot be
-							undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel disabled={deleteJobMutation.isPending}>
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={() => {
-								if (deleteJobId !== undefined) {
-									deleteJobMutation.mutate(deleteJobId);
-								}
-							}}
-							disabled={deleteJobMutation.isPending}
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-						>
-							{deleteJobMutation.isPending ? "Deleting..." : "Delete"}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 		</div>
 	);
 }

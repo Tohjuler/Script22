@@ -36,7 +36,7 @@ export const jobsRouter = {
 		const job = await db.query.job.findFirst({
 			where: (job, { eq }) => eq(job.id, input.id),
 		});
-		if (!job) throw new Error(`Job with id ${input.id} not found`);
+		if (!job) return null;
 		return { ...job, nextRunTime: getNextRunTime(job.id) };
 	}),
 	create: pp
