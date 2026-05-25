@@ -1,4 +1,5 @@
 import { db } from "@script22/db";
+import { cancelRun } from "@script22/logic/jobRunner";
 import { getLogs, logStreamer } from "@script22/logic/runner/logStreamer";
 import z from "zod/v4";
 import { protectedProcedure as pp } from "../index";
@@ -103,5 +104,23 @@ export const runsRouter = {
 
 				if (payload.type === "close") break;
 			}
+		}),
+	cancelRun: pp
+		.input(z.object({ id: z.number() }))
+		.handler(async ({ input }) => {
+			const run = await db.query.jobRun.findFirst({
+				columns: { state: true },
+				where: (run, { eq }) => eq(run.id, input.id),
+			});
+
+			if (!run) return { success: false, message: "Run not found" };
+
+			const res: { success: boolean; message?: string } = await cancelRun(
+				input.id,
+			)
+				.then(() => ({ success: true }))
+				.catch((err) => ({ success: false, message: err.message }));
+
+			return res;
 		}),
 };

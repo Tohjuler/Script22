@@ -10,7 +10,12 @@ import { logger } from "../logger";
 import { sendJobNotification } from "../notificationsUtils";
 import { jobConfig } from "../types";
 import { execCommand } from "./commandRunner";
-import { clearLogs, type LogType, streamLog } from "./logStreamer";
+import {
+	clearLogs,
+	type LogType,
+	rebuildExecResult,
+	streamLog,
+} from "./logStreamer";
 import { getDefaultAuth } from "./sshAuth";
 
 export type Job = {
@@ -34,6 +39,7 @@ export type QueuedJob = {
 };
 
 export type ExecResult = {
+	command?: string;
 	status: number;
 	stdout: string;
 	stderr: string;
@@ -222,7 +228,16 @@ async function startJob(
 
 			let currentCommandIndex = 0;
 			const commandOutputs: ExecResult[] = [];
-			const callback = (result: ExecResult) => {
+			const callback = (result: ExecResult, killed = false) => {
+				if (killed) {
+					logger.debug(result, "Command was killed, marking job as failed");
+					log({
+						type: "stderr",
+						data: "Command was killed, aborting further execution",
+					});
+					return;
+				}
+
 				if (result.status !== 0 && !server.config.continueOnFailure) {
 					logger.error(result, "Command failed, aborting further execution");
 					finish("failed", commandOutputs.concat(result));
@@ -250,6 +265,7 @@ async function startJob(
 						finish(
 							"failed",
 							commandOutputs.concat({
+								command: server.config.commands[currentCommandIndex],
 								status: -1,
 								stdout: "",
 								stderr: `Error executing command: ${err instanceof Error ? err.message : String(err)}`,
@@ -293,14 +309,31 @@ async function startJob(
 		client: client,
 
 		cancel: async (message?: string) => {
-			finish("failed", [
-				{
-					status: -1,
-					stdout: "",
-					stderr: `Job cancelled${message ? `: ${message}` : ""}`,
-				},
-			]);
 			client.end();
+
+			const output = rebuildExecResult(runId.toString());
+
+			if (output.length <= 0) {
+				logger.debug(
+					{ runId: runId },
+					"No logs found for run, marking job as failed without output",
+				);
+
+				finish("failed", [
+					{
+						status: -1,
+						stdout: "",
+						stderr: `Job cancelled${message ? `: ${message}` : ""}`,
+					},
+				]);
+				return;
+			}
+
+			const lastOutput = output[output.length - 1];
+			if (lastOutput)
+				lastOutput.stderr += `\nJob cancelled${message ? `: ${message}` : ""}`;
+
+			finish("failed", output);
 		},
 	};
 }

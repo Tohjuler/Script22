@@ -48,7 +48,7 @@ export default function LogViewer({
 				logLines.push({
 					commandIndex: index,
 					type: "start",
-					data: "",
+					data: log.command || "",
 				});
 
 				stdoutLines.forEach((line) => {
@@ -77,21 +77,11 @@ export default function LogViewer({
 			});
 		}
 		if (streamedLogs && streamedLogs.length > 0) {
-			let lastCmdIdx = -1;
 			const logLines: LogLine[] = [];
 			for (const line of streamedLogs) {
 				if (line.type === "close") {
 					if (onFinish) onFinish();
 					break;
-				}
-
-				if (lastCmdIdx !== line.commandIndex) {
-					logLines.push({
-						commandIndex: line.commandIndex,
-						type: "start",
-						data: "",
-					});
-					lastCmdIdx = line.commandIndex;
 				}
 
 				logLines.push(line);
@@ -127,7 +117,10 @@ export default function LogViewer({
 						key={`${index}-${log.commandIndex}`}
 						className={`wrap-normal w-full text-wrap border-l-2 px-2 hover:bg-card/40 ${style[log.type]}`}
 					>
-						{log.type === "start" && `Command ${log.commandIndex + 1} started.`}
+						{log.type === "start" &&
+							(log.data
+								? `Command ${log.commandIndex + 1}: ${log.data}`
+								: `Command ${log.commandIndex + 1} started.`)}
 						{log.type === "end" &&
 							`Command ${log.commandIndex + 1} exited with status ${log.data}`}
 						{(log.type === "stdout" || log.type === "stderr") && log.data}

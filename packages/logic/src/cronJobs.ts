@@ -4,7 +4,7 @@ import { env } from "@script22/env/server";
 import { YAML } from "bun";
 import { CronJob } from "cron";
 import { eq } from "drizzle-orm";
-import { checkJobTimeouts, queueJob } from "./jobRunner";
+import { checkJobTimeouts, processQueue, queueJob } from "./jobRunner";
 import { logger } from "./logger";
 import { type JobConfig, jobConfig } from "./types";
 
@@ -164,7 +164,7 @@ export async function handleRun(jobId: number, config: JobConfig) {
 
 	for (const server of servers) {
 		logger.info("Queuing job ID %d on server ID %d", jobId, server.id);
-		queueJob(server.id, jobId).catch((err) => {
+		await queueJob(server.id, jobId).catch((err) => {
 			logger.error(
 				err,
 				"Error queuing job ID %d on server ID %d:",
@@ -173,4 +173,13 @@ export async function handleRun(jobId: number, config: JobConfig) {
 			);
 		});
 	}
+
+	await processQueue().catch((err) => {
+		logger.error(
+			"Failed to process job queue after adding jobs ID %d for servers %s: %s",
+			jobId,
+			servers.map((s) => s.id).join(","),
+			err.message,
+		);
+	});
 }
