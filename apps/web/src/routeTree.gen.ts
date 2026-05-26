@@ -14,6 +14,7 @@ import { Route as PathlessLayoutIndexRouteImport } from './routes/_pathlessLayou
 import { Route as PathlessLayoutSettingsRouteImport } from './routes/_pathlessLayout/settings'
 import { Route as authSetupRouteImport } from './routes/(auth)/setup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as PathlessLayoutJobsJobIdRouteImport } from './routes/_pathlessLayout/jobs.$jobId'
 import { Route as PathlessLayoutHostsHostIdRouteImport } from './routes/_pathlessLayout/hosts.$hostId'
 
 const PathlessLayoutRouteRoute = PathlessLayoutRouteRouteImport.update({
@@ -40,6 +41,11 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PathlessLayoutJobsJobIdRoute = PathlessLayoutJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => PathlessLayoutRouteRoute,
+} as any)
 const PathlessLayoutHostsHostIdRoute =
   PathlessLayoutHostsHostIdRouteImport.update({
     id: '/hosts/$hostId',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof authSetupRoute
   '/settings': typeof PathlessLayoutSettingsRoute
   '/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
+  '/jobs/$jobId': typeof PathlessLayoutJobsJobIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/settings': typeof PathlessLayoutSettingsRoute
   '/': typeof PathlessLayoutIndexRoute
   '/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
+  '/jobs/$jobId': typeof PathlessLayoutJobsJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,12 +77,25 @@ export interface FileRoutesById {
   '/_pathlessLayout/settings': typeof PathlessLayoutSettingsRoute
   '/_pathlessLayout/': typeof PathlessLayoutIndexRoute
   '/_pathlessLayout/hosts/$hostId': typeof PathlessLayoutHostsHostIdRoute
+  '/_pathlessLayout/jobs/$jobId': typeof PathlessLayoutJobsJobIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/setup' | '/settings' | '/hosts/$hostId'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/setup'
+    | '/settings'
+    | '/hosts/$hostId'
+    | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/setup' | '/settings' | '/' | '/hosts/$hostId'
+  to:
+    | '/login'
+    | '/setup'
+    | '/settings'
+    | '/'
+    | '/hosts/$hostId'
+    | '/jobs/$jobId'
   id:
     | '__root__'
     | '/_pathlessLayout'
@@ -83,6 +104,7 @@ export interface FileRouteTypes {
     | '/_pathlessLayout/settings'
     | '/_pathlessLayout/'
     | '/_pathlessLayout/hosts/$hostId'
+    | '/_pathlessLayout/jobs/$jobId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_pathlessLayout/jobs/$jobId': {
+      id: '/_pathlessLayout/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof PathlessLayoutJobsJobIdRouteImport
+      parentRoute: typeof PathlessLayoutRouteRoute
+    }
     '/_pathlessLayout/hosts/$hostId': {
       id: '/_pathlessLayout/hosts/$hostId'
       path: '/hosts/$hostId'
@@ -142,12 +171,14 @@ interface PathlessLayoutRouteRouteChildren {
   PathlessLayoutSettingsRoute: typeof PathlessLayoutSettingsRoute
   PathlessLayoutIndexRoute: typeof PathlessLayoutIndexRoute
   PathlessLayoutHostsHostIdRoute: typeof PathlessLayoutHostsHostIdRoute
+  PathlessLayoutJobsJobIdRoute: typeof PathlessLayoutJobsJobIdRoute
 }
 
 const PathlessLayoutRouteRouteChildren: PathlessLayoutRouteRouteChildren = {
   PathlessLayoutSettingsRoute: PathlessLayoutSettingsRoute,
   PathlessLayoutIndexRoute: PathlessLayoutIndexRoute,
   PathlessLayoutHostsHostIdRoute: PathlessLayoutHostsHostIdRoute,
+  PathlessLayoutJobsJobIdRoute: PathlessLayoutJobsJobIdRoute,
 }
 
 const PathlessLayoutRouteRouteWithChildren =

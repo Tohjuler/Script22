@@ -30,7 +30,13 @@ export const runsRouter = {
 			return runs;
 		}),
 	getByJobId: pp
-		.input(z.object({ jobId: z.number() }))
+		.input(
+			z.object({
+				jobId: z.number(),
+				limit: z.number().optional().default(50),
+				offset: z.number().optional().default(0),
+			}),
+		)
 		.handler(async ({ input }) => {
 			const runs = await db.query.jobRun.findMany({
 				columns: {
@@ -43,6 +49,8 @@ export const runsRouter = {
 				},
 				where: (run, { eq }) => eq(run.jobId, input.jobId),
 				orderBy: (run, { desc }) => [desc(run.createdAt)],
+				limit: input.limit,
+				offset: input.offset,
 			});
 			return runs;
 		}),

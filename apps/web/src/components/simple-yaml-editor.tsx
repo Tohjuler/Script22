@@ -19,6 +19,7 @@ export function SimpleYamlEditor({
 	id?: string;
 	className?: string;
 	placeholder?: string;
+	readOnly?: boolean;
 }) {
 	const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +55,7 @@ export function SimpleYamlEditor({
 					onChange={onChange}
 					theme="dark"
 					className={cn("bg-card! text-sm", props.className)}
+					readOnly={props.readOnly}
 				/>
 			</Card>
 
