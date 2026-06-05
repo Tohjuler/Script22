@@ -210,7 +210,10 @@ function DashboardPage() {
 											<Button
 												size="sm"
 												variant="outline"
-												onClick={() => setRunJobId(job.id)}
+												onClick={(e) => {
+													e.preventDefault();
+													setRunJobId(job.id)
+												}}
 											>
 												Run
 											</Button>
