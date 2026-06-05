@@ -212,7 +212,7 @@ function DashboardPage() {
 												variant="outline"
 												onClick={(e) => {
 													e.preventDefault();
-													setRunJobId(job.id)
+													setRunJobId(job.id);
 												}}
 											>
 												Run

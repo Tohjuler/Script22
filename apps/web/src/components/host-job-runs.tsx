@@ -140,7 +140,9 @@ export function HostJobRuns({
 												</span>
 											</TableCell>
 											<TableCell className="text-muted-foreground text-sm">
-												{run.startedAt ? new Date(run.startedAt).toLocaleString() : "N/A"}
+												{run.startedAt
+													? new Date(run.startedAt).toLocaleString()
+													: "N/A"}
 											</TableCell>
 											<TableCell className="text-muted-foreground text-sm">
 												{run.state === "running" ? "--" : getDuration(run)}
