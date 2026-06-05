@@ -74,8 +74,8 @@ export function RunDetailsSheet({
 	}, [output]);
 
 	const getDuration = () => {
-		if (!run?.createdAt) return "N/A";
-		const start = new Date(run.createdAt).getTime();
+		if (!run?.startedAt) return "N/A";
+		const start = new Date(run.startedAt).getTime();
 		const end = run.finishedAt
 			? new Date(run.finishedAt).getTime()
 			: Date.now();
@@ -146,8 +146,8 @@ export function RunDetailsSheet({
 						<div>
 							<p className="text-muted-foreground text-sm">Started</p>
 							<p className="font-medium">
-								{run?.createdAt
-									? new Date(run.createdAt).toLocaleString()
+								{run?.startedAt
+									? new Date(run.startedAt).toLocaleString()
 									: "N/A"}
 							</p>
 						</div>
