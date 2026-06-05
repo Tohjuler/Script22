@@ -21,6 +21,7 @@ interface HostJobRunsProps {
 		id: number;
 		jobId: number;
 		state: string;
+		startedAt?: Date | null;
 		finishedAt?: Date | null;
 		createdAt: Date;
 	}>;
@@ -55,13 +56,13 @@ export function HostJobRuns({
 
 	const getDuration = (run: (typeof runs)[0]) => {
 		if (!run.finishedAt) {
-			if (run.state === "running") {
-				const elapsed = Date.now() - new Date(run.createdAt).getTime();
+			if (run.state === "running" && run.startedAt) {
+				const elapsed = Date.now() - new Date(run.startedAt).getTime();
 				return formatTime(elapsed);
 			}
 			return "N/A";
 		}
-		const startTime = new Date(run.createdAt).getTime();
+		const startTime = new Date(run.startedAt || run.createdAt).getTime();
 		const endTime = new Date(run.finishedAt).getTime();
 		return formatTime(endTime - startTime);
 	};
@@ -139,7 +140,7 @@ export function HostJobRuns({
 												</span>
 											</TableCell>
 											<TableCell className="text-muted-foreground text-sm">
-												{new Date(run.createdAt).toLocaleString()}
+												{run.startedAt ? new Date(run.startedAt).toLocaleString() : "N/A"}
 											</TableCell>
 											<TableCell className="text-muted-foreground text-sm">
 												{run.state === "running" ? "--" : getDuration(run)}

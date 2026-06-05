@@ -14,6 +14,7 @@ interface HostStatisticsProps {
 		id: number;
 		state: string;
 		finishedAt?: Date | null;
+		startedAt?: Date | null;
 		createdAt: Date;
 	}>;
 }
@@ -48,8 +49,8 @@ export function HostStatistics({ runs }: HostStatisticsProps) {
 			}
 
 			// Calculate time for completed runs
-			if (run.finishedAt && run.createdAt) {
-				const startTime = new Date(run.createdAt).getTime();
+			if (run.finishedAt && run.startedAt) {
+				const startTime = new Date(run.startedAt).getTime();
 				const endTime = new Date(run.finishedAt).getTime();
 				const duration = endTime - startTime;
 

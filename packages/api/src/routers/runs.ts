@@ -44,6 +44,7 @@ export const runsRouter = {
 					serverId: true,
 					state: true,
 					finishedAt: true,
+					startedAt: true,
 					createdAt: true,
 					updatedAt: true,
 				},

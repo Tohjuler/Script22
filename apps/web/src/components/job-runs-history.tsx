@@ -51,13 +51,13 @@ export function JobRunsHistory({ job }: JobRunsHistoryProps) {
 
 	const getDuration = (run: Exclude<typeof runs, undefined>[0]) => {
 		if (!run.finishedAt) {
-			if (run.state === "running") {
-				const elapsed = Date.now() - new Date(run.createdAt).getTime();
+			if (run.state === "running" && run.startedAt) {
+				const elapsed = Date.now() - new Date(run.startedAt).getTime();
 				return formatTime(elapsed);
 			}
 			return "N/A";
 		}
-		const startTime = new Date(run.createdAt).getTime();
+		const startTime = new Date(run.startedAt || run.createdAt).getTime();
 		const endTime = new Date(run.finishedAt).getTime();
 		return formatTime(endTime - startTime);
 	};
@@ -110,7 +110,7 @@ export function JobRunsHistory({ job }: JobRunsHistoryProps) {
 										<TableCell>{getStatusMarker(run.state)}</TableCell>
 										<TableCell className="font-medium">{job.name}</TableCell>
 										<TableCell className="text-muted-foreground text-sm">
-											{formatDate(run.createdAt)}
+											{run.startedAt ? formatDate(run.startedAt) : "N/A"}
 										</TableCell>
 										<TableCell className="text-muted-foreground text-sm">
 											{run.state === "running" ? "--" : getDuration(run)}

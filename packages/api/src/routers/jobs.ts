@@ -183,10 +183,10 @@ export const jobsRouter = {
 					completedRuns++;
 					if (run.state === "failed") failedRuns++;
 
-					if (run.finishedAt && run.createdAt) {
+					if (run.finishedAt && run.startedAt) {
 						const duration =
 							new Date(run.finishedAt).getTime() -
-							new Date(run.createdAt).getTime();
+							new Date(run.startedAt).getTime();
 						totalTimeMs += duration;
 
 						if (fastestRunMs === null || duration < fastestRunMs)
@@ -196,7 +196,7 @@ export const jobsRouter = {
 					}
 				}
 
-				const runDate = new Date(run.createdAt);
+				const runDate = new Date(run.startedAt || run.createdAt);
 				if (!lastRun || runDate > lastRun) lastRun = runDate;
 			}
 
